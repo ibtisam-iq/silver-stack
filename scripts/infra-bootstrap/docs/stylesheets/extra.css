@@ -1,0 +1,83 @@
+/* Zero top padding on content for no gap above H1 */
+.md-content {
+  padding-top: 0 !important;  /* NEW: Eliminates all top space */
+}
+
+/* H1: Centered, bold, with minimal margins */
+.md-typeset h1 {
+  font-size: 2.5em;
+  font-weight: 800;
+  background: linear-gradient(135deg, #2196f3 0%, #3f51b5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  border-bottom: 3px solid #e3f2fd;
+  padding-bottom: 0.5em;
+  margin: 0 auto 0.5em;  /* NEW: Top 0 (no space above), bottom 0.5em (tiny breath) */
+  text-align: center;
+  letter-spacing: 0.5px;
+  max-width: 80%;
+}
+
+/* Optional: Trim .md-typeset top if lingering space */
+.md-typeset {
+  margin-top: 0 !important;  /* NEW: No extra body top margin */
+}
+
+
+/* H2: Colorful left border with subtle fade (matches accent blue) */
+.md-typeset h2 {
+  border-left: 4px solid #2196f3;  /* Blue left accent */
+  padding-left: 1em;
+  background: linear-gradient(to right, #e3f7ff 0%, transparent 50px);  /* Light blue wash fade */
+  color: #3f51b5;  /* Indigo text */
+  margin-top: 2em;
+  font-weight: 600;  /* Semi-bold for subs */
+}
+
+/* H3: Lighter accent for subs (subtle shadow) */
+.md-typeset h3 {
+  color: #2196f3;  /* Blue for hierarchy */
+  text-shadow: 0 1px 2px rgba(33, 150, 243, 0.1);  /* Soft blue glow */
+  border-bottom: 1px dashed #e3f2fd;  /* Dotted light blue line */
+  padding-bottom: 0.25em;
+  font-weight: 600;  /* Boldish for steps */
+}
+
+/* Active nav item (left sidebar page title: Bolder + underline) */
+.md-nav__item--active .md-nav__link {
+  color: #3f51b5 !important;  /* Indigo match */
+  font-weight: 700 !important;  /* NEW: Bolder for "Self-Managed with Kubeadm" */
+  border-left: 3px solid #2196f3;  /* Blue left bar */
+  padding-left: 0.5em;
+  text-decoration: underline;  /* NEW: Subtle underline for emphasis */
+  text-underline-offset: 2px;  /* Space under line */
+}
+
+/* Dark mode adjustments (auto-cohesive) */
+@media (prefers-color-scheme: dark) {
+  .md-typeset h1 {
+    border-bottom-color: #3949ab;  /* Darker indigo */
+    text-align: center;  /* Ensures center in dark */
+  }
+  .md-typeset h2 {
+    background: linear-gradient(to right, #0d47a1 0%, transparent 50px);  /* Dark blue fade */
+  }
+  .md-nav__item--active .md-nav__link {
+    text-decoration-color: #2196f3;  /* Blue underline in dark */
+  }
+}
+
+/* Append " PKT" after the git revision date in the footer */
+.git-revision-date-localized-plugin::after {
+  content: " PKT";
+  font-weight: 600;
+  margin-left: 0.2em;  /* Small space before PKT */
+  color: var(--md-default-fg-color--light);
+}
+
+/* Optional: Slightly more subtle in footer for better visual balance */
+.md-footer-meta .git-revision-date-localized-plugin::after {
+  opacity: 0.85;
+  font-weight: 500;
+}

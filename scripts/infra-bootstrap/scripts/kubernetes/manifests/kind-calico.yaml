@@ -1,0 +1,124 @@
+# kind-calico-cluster-config.yaml
+
+# Description:
+# This is the official Kind cluster manifest using Calico as the Container Network Interface (CNI). 
+# It defines a Kubernetes cluster with two control-planes (master) node and two worker nodes. 
+# This minimal setup is designed for local development and testing purposes, ensuring simplicity and resource efficiency.
+
+
+apiVersion: kind.x-k8s.io/v1alpha4    # Specifies the Kind API version to use. Kind is a tool for running Kubernetes clusters locally using Docker containers.
+                                      # This API version ensures compatibility with the current Kind features and configurations.
+
+kind: Cluster                         # Declares that this is a Kind Cluster configuration file, which tells Kind how to create the cluster.
+                                      # This setting defines that we are creating a Kubernetes cluster managed by Kind.
+
+name: ibtisam                         # Name of the Kind cluster. This is an identifier for the cluster, useful when managing multiple clusters.
+                                      # Choosing a unique name allows easy identification, especially when multiple clusters are in use.
+
+nodes:                                # Defines the cluster nodes, specifying their roles and configurations.
+  - role: control-plane               # Defines a node as a control-plane (master) node, responsible for managing the cluster.
+                                      # The control-plane node is the brain of the cluster, handling scheduling, state management, and API requests.
+    image: kindest/node:v1.32.3       # Specifies the container image for the control-plane node. Ensures all nodes run the same Kubernetes version.
+                                      # Using a specific version ensures consistency and prevents compatibility issues within the cluster.
+    extraPortMappings:                # Optional: Maps additional ports from the host machine to the node for external access.
+      - containerPort: 6443           # Internal Kubernetes API server port inside the container, should match the `apiServerPort` in the networking section.
+        hostPort: 6445                # Maps this port to the host, allowing external tools to communicate with the cluster API.
+        protocol: TCP                 # Communication protocol used for API interactions (TCP is standard for Kubernetes API).
+      - containerPort: 30000          # Example port for a service running inside the cluster, should match NodePort in service definitions.
+        hostPort: 8081                # Maps the service port to port 3000 on the host, making it accessible externally.
+        protocol: TCP                 # Communication protocol used (TCP for most services).
+      - containerPort: 30001          # Set it as a NodePort for a service running inside the cluster.
+        hostPort: 30001               # curl public_ip:30001 # http://54.87.167.19:30001/
+        protocol: TCP
+      - containerPort: 30002
+        hostPort: 30002
+        protocol: TCP
+      - containerPort: 30003
+        hostPort: 30003
+        protocol: TCP
+      - containerPort: 30004
+        hostPort: 30004
+        protocol: TCP
+      - containerPort: 30005
+        hostPort: 30005
+        protocol: TCP
+      - containerPort: 30006
+        hostPort: 30006
+        protocol: TCP
+      - containerPort: 30007
+        hostPort: 30007
+        protocol: TCP
+      - containerPort: 30008
+        hostPort: 30008
+        protocol: TCP
+      - containerPort: 30009
+        hostPort: 30009
+        protocol: TCP
+      - containerPort: 30010
+        hostPort: 30010
+        protocol: TCP  
+    kubeadmConfigPatches:             # Optional: Custom Kubeadm configurations for bootstrapping the control-plane.
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          name: ibtisam-iq            # Sets a custom name for the control-plane node (useful for multi-node clusters).
+
+  - role: control-plane               # Defines a second control-plane node for high availability.
+                                      # Having multiple control-plane nodes ensures redundancy and avoids a single point of failure.
+    image: kindest/node:v1.32.3       # Uses the same Kubernetes version as other nodes to ensure compatibility.
+    kubeadmConfigPatches:             # Optional: Configuration patches for the second control-plane node.
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          name: ibtisam-x             # Names this node as the second control-plane instance.
+
+  - role: worker                      # Defines a worker node, which runs application workloads but does not manage the cluster.
+                                      # Worker nodes host application pods and are managed by the control-plane nodes.
+    image: kindest/node:v1.32.3       # Uses the same Kubernetes version as the control-plane nodes.
+    kubeadmConfigPatches:             # Optional: Custom configurations for worker nodes.
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          name: worker-a              # Names the first worker node.
+
+  - role: worker                      # Defines another worker node for increased application capacity.
+                                      # Adding more worker nodes increases the cluster’s ability to handle workloads.
+    image: kindest/node:v1.32.3       # Uses the same Kubernetes version as the rest of the cluster.
+    kubeadmConfigPatches:             # Optional: Custom patches for this worker node.
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          name: worker-b              # Names the second worker node.
+
+networking:                           # Configures the cluster's networking settings.
+  disableDefaultCNI: true             # Disables the default Container Network Interface (CNI) plugin (Flannel), allowing for custom networking configurations.
+                                      # The CNI manages pod networking, allowing pods to communicate within the cluster.
+  podSubnet: "10.244.0.0/16"          # Defines the subnet range for pod networking.
+                                      # This range ensures that each pod gets a unique IP address.
+  serviceSubnet: "10.96.0.0/12"       # Defines the subnet range for Kubernetes services.
+                                      # Kubernetes services use this range to provide stable internal networking for applications.
+  apiServerAddress: "127.0.0.1"       # Specifies the address the API server binds to. Here, it's bound to localhost.
+                                      # This ensures that only the local machine can access the API server, enhancing security.
+  apiServerPort: 6443                 # Specifies the API server port (default is 6443 for Kubernetes).
+
+kubeadmConfigPatches:                 # Global configuration patches applied to all nodes.
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        authorization-mode: Node,RBAC # Enables both Node and Role-Based Access Control (RBAC) for secure access management.
+                                      # RBAC enforces role-based permissions, ensuring that only authorized entities can perform actions in the cluster.
+
+containerdConfigPatches:              # Optional: Custom configuration for containerd, the container runtime.
+  - |
+    [plugins."io.containerd.grpc.v1.cri".containerd]
+      snapshotter = "overlayfs"       # Configures containerd to use the "overlayfs" snapshotter, improving performance.
+                                      # The snapshotter manages container file system layers efficiently, enhancing speed and storage efficiency.
+
+
+# Once the cluster is created, you can deploy Calico as the CNI plugin using the following command:
+
+# curl -O https://raw.githubusercontent.com/projectcalico/calico/v3.28.0/manifests/calico.yaml
+# sed -i 's/# - name: CALICO_IPV4POOL_CIDR/- name: CALICO_IPV4POOL_CIDR/' calico.yaml
+# sed -i 's/#   value: "192.168.0.0\/16"/  value: "10.244.0.0\/16"/' calico.yaml
+# kubectl apply -f calico.yaml
