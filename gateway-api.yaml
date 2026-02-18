@@ -1,0 +1,258 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: my-nginx-gateway-class  # Name used in Gateway to refer to this class
+spec:
+  controllerName: k8s.io/nginx-gateway-controller
+  # This value MUST match the controller that's installed in your cluster.
+  # For NGINX Gateway, it's usually "k8s.io/nginx-gateway-controller"
+  # For Istio, it could be "istio.io/gateway-controller"
+
+---
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: my-nginx-gateway
+  namespace: nginx-gateway  # Choose the namespace where the Gateway controller is watching
+spec:
+  gatewayClassName: my-nginx-gateway-class  # Referencing the GatewayClass above
+  listeners:
+  - name: http  # 👈 This is important! Used by HTTPRoute as sectionName
+    protocol: HTTP
+    port: 80
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: tls-secret
+    hostname: ibtisam-iq.com       
+    allowedRoutes:
+      namespaces:
+        from: Same
+        # 'Same' = only allow HTTPRoutes from the same namespace as the Gateway
+        # Use 'All' to allow from any namespace
+
+---
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: frontend-route
+  # An HTTPRoute does not have to be in the same namespace as the Gateway, but it does have to be in the same namespace as the Service it references.
+  namespace: default
+spec:
+  parentRefs:
+  - name: my-nginx-gateway      # 👈 This references the Gateway name
+    namespace: nginx-gateway    # 👈 Gateway namespace
+    sectionName: http           # 👈 Matches the listener name in the Gateway
+  hostnames:
+  - ibtisam-iq.com              # Referenced to gateway hostname
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix  # Match all paths that start with "/"
+        value: /
+    backendRefs:
+    - name: frontend-svc  # Service that receives traffic
+      port: 80
+      weight: 1  # Optional: used for traffic splitting if multiple backends
+
+
+---
+# Q1
+# Create the `web-app-route` in the `ck2145` namespace. This route should direct requests that contain the **header** `X-Environment: canary` to 
+# the `web-service-canary` on port `8080`. All other traffic should continue to be routed to `web-service` also on port `8080`.
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: web-app-route
+  namespace: ck2145
+spec:
+  parentRefs:
+  - name: nginx-gateway 
+    namespace: nginx-gateway
+  rules:
+  - matches:
+    - headers:
+      - name: X-Environment
+        value: canary
+    backendRefs:
+    - name: web-service-canary
+      port: 8080
+  - backendRefs:
+    - name: web-service
+      port: 8080
+
+---
+# Q2
+# Configure a `web-portal-httproute` within the `cka3658` namespace to facilitate traffic distribution. 
+# Route **80%** of the traffic to `web-portal-service-v1` and **20%** to the new version, `web-portal-service-v2`.
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: web-portal-httproute
+  namespace: cka3658
+spec:
+  parentRefs:
+  - name: nginx-gateway
+    namespace: nginx-gateway
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: portal-service-v1
+      port: 80
+      weight: 80
+    - name: portal-service-v2
+      port: 80
+      weight: 20
+
+---
+# Q3
+# **Extend** the `web-route` on `cka7395` to direct traffic with the path prefix `/api` to a service named `api-service` on port `8080`, 
+# while all other traffic continues to route to `web-service`.
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: web-route
+  namespace: cka7395
+spec:
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: nginx-gateway
+    namespace: nginx-gateway
+
+  rules:
+  # Rule 1: Match /api path and send to api-service:8080
+  - matches:
+    - path:
+        type: PathPrefix   # Prefix match ensures /api, /api/v1, etc. go here
+        value: /api
+    backendRefs:
+    - name: api-service
+      port: 8080
+
+  # Rule 2: Default rule for everything else
+  - matches:
+    - path:
+        type: PathPrefix   # Prefix "/" matches all paths not matched above
+        value: /
+    backendRefs:
+    - name: web-service
+      port: 80
+
+---
+# Q4
+# Create an **HTTPRoute** named `web-route` in the `nginx-gateway` namespace that directs traffic from the `web-gateway` to a 
+# backend service named `web-service` on port 80 and ensures that the route is applied only to requests with the hostname `cluster2-controlplane`.
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: web-route
+  namespace: nginx-gateway
+spec:
+  hostnames:
+  - cluster2-controlplane                   
+  parentRefs:
+  - name: web-gateway
+    namespace: nginx-gateway
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: web-service
+      port: 80
+
+---
+# Q5
+# **Modify** the existing `web-gateway` on `cka5673` namespace to handle HTTPS traffic on port 443 for `kodekloud.com`, 
+# using a TLS certificate stored in a secret named `kodekloud-tls`.
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: web-gateway
+  namespace: cka5673
+spec:
+  gatewayClassName: nginx                      # previously kodekloud, changed to nginx
+  listeners:
+  - allowedRoutes:
+      namespaces:
+        from: Same
+    hostname: kodekloud.com                   # added             
+    name: https
+    port: 443                                 # previously 80, changed to 443
+    protocol: HTTPS                           # previously HTTP, changed to HTTPS 
+    tls:                                      # added
+      certificateRefs:
+      - group: ""
+        kind: Secret
+        name: kodekloud-tls                   # just add it, rest all of filds under tls: will auto-add.
+      mode: Terminate
+
+### ✅ Step 1 — Create a simple Nginx Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deploy
+  namespace: cka5673
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+
+### ✅ Step 2 — Expose it with a Service
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-svc
+  namespace: cka5673
+spec:
+  selector:
+    app: nginx
+  ports:
+  - port: 80
+    targetPort: 80
+
+### ✅ Step 3 — Route traffic via the Gateway
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: nginx-route
+  namespace: cka5673
+spec:
+  parentRefs:
+  - name: web-gateway
+  hostnames:
+  - "kodekloud.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: nginx-svc
+      port: 80

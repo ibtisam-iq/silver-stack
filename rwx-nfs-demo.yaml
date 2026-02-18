@@ -1,0 +1,139 @@
+# ====================================
+# NFS Server Deployment & Service
+# ====================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs-server
+  template:
+    metadata:
+      labels:
+        app: nfs-server
+    spec:
+      containers:
+        - name: nfs-server
+          image: itsthenetwork/nfs-server-alpine:latest
+          ports:
+            - containerPort: 2049
+          securityContext:
+            privileged: true
+          env:
+            - name: SHARED_DIRECTORY
+              value: /nfsshare
+          volumeMounts:
+            - name: nfs-data
+              mountPath: /nfsshare
+      volumes:
+        - name: nfs-data
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nfs-service
+spec:
+  selector:
+    app: nfs-server
+  ports:
+    - protocol: TCP
+      port: 2049
+      targetPort: 2049
+  clusterIP: None  # Headless Service for direct pod-to-pod communication
+
+# ====================================
+# StorageClass for NFS
+# ====================================
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-sc
+provisioner: example.com/nfs  # Replace this with your NFS CSI driver provisioner
+parameters:
+  archiveOnDelete: "false"
+
+# ====================================
+# PersistentVolumeClaim for RWX Access
+# ====================================
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: nfs-sc
+
+# ====================================
+# Multi-Pod Deployment (Busybox Writers)
+# ====================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: writer-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: writer
+  template:
+    metadata:
+      labels:
+        app: writer
+    spec:
+      containers:
+        - name: writer
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            - while true;
+              do
+                echo "Written by $(hostname) at $(date)" >> /shared-data/output.log;
+                sleep 5;
+              done
+          volumeMounts:
+            - name: shared-storage
+              mountPath: "/shared-data"
+      volumes:
+        - name: shared-storage
+          persistentVolumeClaim:
+            claimName: shared-pvc
+
+# ==========================================================
+# 📌 How to Apply this RWX NFS Demo
+# ==========================================================
+#
+# 1️⃣ Save this file as 'rwx-nfs-demo.yaml'
+#
+# 2️⃣ Apply it using:
+#     kubectl apply -f rwx-nfs-demo.yaml
+#
+# ==========================================================
+# 📌 Check Concurrent Writes from Multiple Pods
+# ==========================================================
+#
+# ✅ List all writer pods:
+#     kubectl get pods -l app=writer
+#
+# ✅ Pick any pod and watch the shared log file:
+#     kubectl exec -it <one-pod-name> -- tail -f /shared-data/output.log
+#
+# ✔️ Expected output:
+#     Written by writer-deployment-xxxxxx-yyyyy at <timestamp>
+#     Written by writer-deployment-xxxxxx-zzzzz at <timestamp>
+#
+# ➝ Both pods write to the same file via RWX NFS shared storage.
+#
+# ==========================================================
+

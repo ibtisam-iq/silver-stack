@@ -1,0 +1,142 @@
+# ======================================================================
+# Kubernetes NetworkPolicy — FULL REFERENCE EXAMPLE
+# This policy is designed to:
+#   1. Select specific pods to apply restrictions to (using podSelector)
+#   2. Control both Ingress (incoming) and Egress (outgoing) traffic
+#   3. Demonstrate all three source/destination matching methods:
+#      - podSelector
+#      - namespaceSelector
+#      - ipBlock (with exceptions)
+#   4. Show how to combine selectors for more precise filtering
+#   5. Explain how multiple entries in 'from'/'to' work
+# ======================================================================
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: example-complete-network-policy   # Name of this policy
+  namespace: default                      # Namespace where the targeted pods exist
+spec:
+  # -------------------------------
+  # Step 1: Select the pods this policy applies to
+  # -------------------------------
+  podSelector:
+    matchLabels:
+      role: db
+  # This policy applies ONLY to pods in the 'default' namespace
+  # whose metadata.labels include: role=db
+  #
+  # If podSelector is empty ({}), it matches ALL pods in the namespace.
+
+  # -------------------------------
+  # Step 2: Specify policy types (Ingress/Egress)
+  # -------------------------------
+  policyTypes:
+    - Ingress
+    - Egress
+  # This means we are restricting BOTH incoming and outgoing traffic.
+  # If you omit policyTypes, Kubernetes will infer them from the presence
+  # of 'ingress' and/or 'egress' sections.
+
+  # -------------------------------
+  # Step 3: Ingress rules — who can talk TO our pods
+  # -------------------------------
+  ingress:
+    # ======= Rule 1: Multiple "from" sources =======
+    - from:
+        # (A) Allow traffic from specific pods in the SAME namespace
+        - podSelector:
+            matchLabels:
+              role: frontend
+          # NOTE:
+          # This is limited to the namespace of the NetworkPolicy itself (here: 'default').
+          # Pods in other namespaces are NOT matched here.
+
+        # (B) Allow traffic from ANY pod in a namespace with specific label
+        - namespaceSelector:
+            matchLabels:
+              project: myproject
+          # This matches namespaces whose metadata.labels include: project=myproject
+          # This allows ALL pods inside those namespaces, regardless of their own labels.
+
+        # (C) Allow traffic from an IP range (CIDR), except certain subnets
+        - ipBlock:
+            cidr: 172.17.0.0/16
+            except:
+              - 172.17.1.0/24
+          # This allows any source IP between 172.17.0.0 and 172.17.255.255
+          # EXCEPT the range 172.17.1.0 to 172.17.1.255.
+
+        # (D) COMBINING namespaceSelector AND podSelector together
+        #     (both must match at the same time)
+        - namespaceSelector:
+            matchLabels:
+              environment: production
+          podSelector:
+            matchLabels:
+              app: api
+          # This is more restrictive: only pods labeled app=api that are in
+          # namespaces labeled environment=production can access.
+
+      # ====== Allowed Ports for this rule ======
+      ports:
+        - protocol: TCP
+          port: 6379
+          # Port 6379 is typically Redis; we allow only this service to be accessed.
+
+    # ======= Rule 2: Another ingress rule block =======
+    - from:
+        - ipBlock:
+            cidr: 192.168.10.0/24
+      ports:
+        - protocol: TCP
+          port: 5432   # PostgreSQL
+  #
+  # IMPORTANT BEHAVIOR FOR MULTIPLE "from" ENTRIES:
+  #   - Within a single 'from' array (under the same rule block), Kubernetes applies OR logic:
+  #     If the source matches ANY one of the entries, it's allowed.
+  #   - If there are multiple ingress rules (multiple "- from:" blocks),
+  #     they are also combined using OR logic — if traffic matches any rule, it's allowed.
+  #   - Ports listed apply as AND with the source: source must match AND connect on allowed port.
+
+  # -------------------------------
+  # Step 4: Egress rules — where our pods can talk TO
+  # -------------------------------
+  egress:
+    # ======= Rule 1: Multiple "to" destinations =======
+    - to:
+        # (A) Allow connections to any pod in the SAME namespace with label 'role=cache'
+        - podSelector:
+            matchLabels:
+              role: cache
+
+        # (B) Allow connections to any pod in namespaces labeled 'team=devops'
+        - namespaceSelector:
+            matchLabels:
+              team: devops
+
+        # (C) Allow connections to a specific external network
+        - ipBlock:
+            cidr: 10.0.0.0/24
+          # This could represent an internal service network
+
+      ports:
+        - protocol: TCP
+          port: 3306   # MySQL
+
+    # ======= Rule 2: Specific external API access =======
+    - to:
+        - ipBlock:
+            cidr: 203.0.113.0/24
+      ports:
+        - protocol: TCP
+          port: 443    # HTTPS
+  #
+  # MULTIPLE "to" ENTRIES behave the same as "from":
+  #   - OR logic between array items
+  #   - AND logic between source/destination and allowed ports
+
+# ======================================================================
+# END OF MANIFEST
+# ======================================================================
+

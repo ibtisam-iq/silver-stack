@@ -1,0 +1,104 @@
+---
+# 1️⃣ Install cert-manager (You'd typically apply the official YAML, but adding as note)
+# kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.3/cert-manager.yaml
+
+---
+# 2️⃣ ClusterIssuer Definition
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: your-email@ibtisam-iq.com
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+
+---
+# 3️⃣ NGINX Ingress Controller Installation (official cloud YAML)
+# kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+
+---
+# 4️⃣ Your Demo Application Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ibtisam-service
+  namespace: default
+spec:
+  selector:
+    app: ibtisam-app
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+
+---
+# 5️⃣ Demo Application Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ibtisam-app
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ibtisam-app
+  template:
+    metadata:
+      labels:
+        app: ibtisam-app
+    spec:
+      containers:
+      - name: web
+        image: nginx
+        ports:
+        - containerPort: 8080
+
+---
+# 6️⃣ Ingress Resource for ibtisam-iq.com
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ibtisam-ingress
+  namespace: default
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - ibtisam-iq.com
+    secretName: ibtisam-tls
+  rules:
+  - host: ibtisam-iq.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ibtisam-service
+            port:
+              number: 80
+
+---
+# ✅ Done — now apply them:
+# kubectl apply -f clusterissuer.yaml
+# kubectl apply -f service.yaml
+# kubectl apply -f deployment.yaml
+# kubectl apply -f ingress.yaml
+
+# Check Status:
+# kubectl get certificates
+# kubectl get secret ibtisam-tls
+# kubectl get ingress
+# kubectl get svc
+

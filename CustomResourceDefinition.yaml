@@ -1,0 +1,170 @@
+# ======================================================================
+# CustomResourceDefinition (CRD)
+# This defines a new API resource: holidaydestinations.destinations.k8s.io
+#   → API path: /apis/destinations.k8s.io/v1alpha1/namespaces/<ns>/holidaydestinations
+#
+# PURPOSE:
+#   This CRD allows us to manage holiday destination data in Kubernetes
+#   just like native objects (Pods, Deployments, etc.).
+#   Example use case: a travel agency's booking system managed in-cluster.
+#
+# IMPORTANT:
+#   - CRD is just the API definition. It does NOT implement any logic.
+#   - To act on CRs (Custom Resources), you need a controller/operator.
+# ======================================================================
+
+apiVersion: apiextensions.k8s.io/v1   # The API version for defining CRDs (stable in v1)
+kind: CustomResourceDefinition        # This tells Kubernetes: "I’m defining a CRD"
+metadata:
+  name: holidaydestinations.destinations.k8s.io
+  # 'name' must be "<plural>.<group>" and is globally unique in the cluster.
+  # In this case: plural = "holidaydestinations", group = "destinations.k8s.io"
+
+  annotations:
+    "api-approved.kubernetes.io": "unapproved, experimental-only"
+    # This is a special annotation for CRDs that are intended for Kubernetes core APIs.
+    # Since this is a custom, experimental CRD, we mark it as "unapproved".
+    # In production core APIs, this must point to the GitHub PR where the API was approved.
+
+  labels:
+    app: holiday
+    # Labels for CRD metadata (like any Kubernetes object).
+    # Useful for organizing, selecting, or identifying CRDs.
+
+spec:
+  # --------------------------
+  # Main configuration of the CRD
+  # --------------------------
+
+  group: destinations.k8s.io
+  # The API group your custom resource belongs to.
+  # The full API path will be: /apis/destinations.k8s.io/<version>
+  # Full API name = <resource>.<group> = holidaydestinations.destinations.k8s.io
+
+  names:
+    # Defines how the resource will be referred to in the API.
+    kind: HolidayDestination
+    # Singular form of the resource in CamelCase.
+    # This is how Kubernetes will display it when you describe it.
+    # Kind used in YAML: kind: HolidayDestination
+
+    singular: holidaydestination
+    # Lowercase singular name used in CLI commands:
+    #   kubectl get holidaydestination <name>
+
+    plural: holidaydestinations
+    # Lowercase plural name used in CLI commands:
+    #   kubectl get holidaydestinations
+
+    shortNames:
+      - hd
+    # Short aliases for convenience:
+    #   kubectl get hd
+    # behaves the same as:
+    #   kubectl get holidaydestinations
+
+    categories:
+      - all
+    # categories (optional) allows grouping in 'kubectl get all' etc.
+
+  scope: Namespaced
+  # Defines whether the custom resource is scoped to a namespace or cluster-wide.
+  # "Namespaced" → every instance exists inside a namespace (like Pods).
+  # "Cluster" → single global instance without namespace (like Nodes).
+  # If set to Cluster, no namespace is required.
+
+  versions:
+    # CRDs can have multiple versions for API evolution (v1, v1beta1, v2, ...).
+    - name: v1alpha1
+      # API version name
+      # Version name. Convention: alpha → beta → stable.
+      # v1alpha1 means it's early stage and may change.
+
+      served: true
+      # If true → Kubernetes API will serve this version when users request it.
+
+      storage: true
+      # The version used for storing objects in etcd.
+      # You can have multiple served versions, but only ONE storage version.
+
+      schema:
+        # ------------------------
+        # Validation Schema
+        # ------------------------
+        # Defines the structure, types, and validation rules for your CRD.
+        # This prevents invalid objects from being created.
+
+        openAPIV3Schema:
+          type: object
+          # CRDs are always defined as an object (key-value fields).
+
+          properties:
+
+            metadata:
+            # --------------------------
+            # metadata section
+            # --------------------------
+              type: object
+            # Standard metadata is always present (name, namespace, labels...)
+
+            spec:
+            # --------------------------
+            # SPEC section
+            # --------------------------
+            # Just like in built-in resources, 'spec' holds desired state.
+              type: object
+              required:
+                # require at least these fields in the spec
+                - destinationName
+                - country
+              properties:
+                
+                destinationName:
+                  type: string     # Required data type: string
+                  description: >
+                    Load level indicator — use one of: "low", "medium", "high".
+                    Using enum helps validation and makes intent explicit.
+                  enum:
+                    - low
+                    - medium
+                    - high
+                    
+                pricePerNight:
+                  type: integer
+                  format: int32
+                  description: "An integer range value. Example: price per night, or 50-1000."
+                  minimum: 50
+                  maximum: 5000
+                  # Validation: must be between $50 and $5000 per night.
+          additionalProperties: false
+          # Disallow extra keys under spec (prune unexpected fields).
+          # Note: additionalProperties=false enforces that only declared fields exist.
+            
+            status:
+            # --------------------------
+            # STATUS section
+            # --------------------------
+            # Like in built-in resources, 'status' shows observed state.
+            # This is updated by the controller, not the user.
+            # We include 'status' here for clarity but the subresource below controls updates.
+              type: object
+              properties:
+                availableRooms:
+                  type: integer
+                  minimum: 0
+                  maximum: 1000
+                  # Validation: cannot be negative, max 1000 rooms.
+
+      subresources:
+        # ------------------------
+        # Subresources — enable status so controllers can update .status separately
+        # ------------------------
+        # Enable special sub-endpoints for your CRD.
+        # Example: /status allows updating only the status part of the resource.
+        # This creates a /status sub-endpoint in the API.
+        # Controllers can update .status independently from .spec.
+        # Example: The booking system operator updates 'availableRooms'
+        #          without touching user-specified 'spec' fields.
+
+        status: {}
+        # This makes `kubectl get` and `kubectl edit status` possible for your CRD.

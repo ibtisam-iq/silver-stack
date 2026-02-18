@@ -1,0 +1,19 @@
+# -------------------------------
+# Cert-Manager ClusterIssuer for Let's Encrypt
+# -------------------------------
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod  # The name of the issuer (referenced in Ingress Resource annotation).
+spec:
+  acme:     # ACME (Automatic Certificate Management Environment) is used for issuing SSL/TLS certificates.
+    server: https://acme-v02.api.letsencrypt.org/directory  # Let's Encrypt API endpoint for certificate requests.
+    email: loveyou@ibtisam-iq.com  # Your email for important notifications regarding SSL certificates.
+    
+    privateKeySecretRef:
+      name: letsencrypt-prod  # Your secret name to store the private key for certificate renewal.
+
+    solvers:
+      - http01:
+          ingress:
+            class: nginx  # HTTP-01 solver requires an Ingress controller (Nginx in this case).
