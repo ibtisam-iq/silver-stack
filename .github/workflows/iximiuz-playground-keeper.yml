@@ -1,0 +1,261 @@
+# =============================================================================
+# iximiuz Playground Keeper - Modular, Reusable Playground Instance Automated Monitoring
+# =============================================================================
+
+# PURPOSE:
+#   Automated monitoring and lifecycle management for iximiuz playground
+#   instances. Ensures continuous availability by auto-discovering, restarting,
+#   and maintaining active connections to prevent inactivity timeouts.
+
+# ARCHITECTURE:
+#   - Discovery-based: No hardcoded playground IDs
+#   - Modular: Core logic extracted to reusable scripts
+#   - Observable: Comprehensive logging and status reporting
+#   - Fault-tolerant: Graceful degradation on component failures
+
+# REPOSITORY STRUCTURE:
+#   .github/
+#   ├── workflows/
+#   │   └── iximiuz-playground-keeper.yml (this file)
+#   └── scripts/
+#       └── iximiuz-keeper/
+#           ├── setup.sh           # Environment setup & auth
+#           ├── discover.sh        # Playground discovery
+#           ├── restart.sh         # Restart operations
+#           ├── health-check.sh    # Health verification
+#           ├── keep-alive.sh      # Keep-alive signals
+#           └── report.sh          # Status reporting
+
+# =============================================================================
+
+name: iximiuz Playground Keeper
+
+on:
+  schedule:
+    - cron: '*/3 * * * *'
+  workflow_dispatch:
+    inputs:
+      force_restart:
+        description: 'Force restart all playgrounds'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+env:
+  # External service monitoring
+  JENKINS_EXTERNAL_URL: "https://jenkins.ibtisam-iq.com"
+  # Timing configuration
+  RESTART_WAIT_SECONDS: "45"
+  HEALTH_CHECK_RETRIES: "3"
+  HEALTH_CHECK_INTERVAL: "10"
+  # Alerting
+  ALERT_LABEL: "iximiuz-keeper-alert"
+  # Script location in repository
+  SCRIPTS_DIR: ".github/scripts/iximiuz-keeper"
+
+jobs:
+  keeper:
+    name: Playground Lifecycle Management
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # =====================================================================
+      # PHASE 1: REPOSITORY CHECKOUT
+      # =====================================================================
+      # Purpose: Access workflow scripts from repository
+      # Required: All logic is in external scripts
+      # =====================================================================
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # =====================================================================
+      # PHASE 2: ENVIRONMENT SETUP & AUTHENTICATION
+      # =====================================================================
+      # Script: setup.sh
+      # Responsibilities:
+      #   - Install labctl CLI
+      #   - Configure API authentication
+      #   - Verify token validity
+      # =====================================================================
+      - name: Setup environment and authentication
+        id: setup
+        env:
+          IXIMIUZ_ACCESS_TOKEN: ${{ secrets.IXIMIUZ_ACCESS_TOKEN }}
+        run: |
+          chmod +x "$SCRIPTS_DIR/setup.sh"
+          "$SCRIPTS_DIR/setup.sh"
+
+      # =====================================================================
+      # PHASE 3: PLAYGROUND DISCOVERY
+      # =====================================================================
+      # Script: discover.sh
+      # Responsibilities:
+      #   - Auto-discover all playgrounds
+      #   - Categorize by state (STOPPED/RUNNING)
+      #   - Export state for subsequent steps
+      # =====================================================================
+      - name: Discover and categorize playgrounds
+        id: discover
+        run: |
+          chmod +x "$SCRIPTS_DIR/discover.sh"
+          "$SCRIPTS_DIR/discover.sh"
+
+      # =====================================================================
+      # PHASE 4: AUTOMATED RESTART
+      # =====================================================================
+      # Script: restart.sh
+      # Responsibilities:
+      #   - Restart all stopped playgrounds
+      #   - Track success/failure metrics
+      #   - Wait for boot completion
+      # Conditional: Only if stopped playgrounds detected
+      # =====================================================================
+      - name: Restart stopped playgrounds
+        if: steps.discover.outputs.action_needed == 'true'
+        id: restart
+        env:
+          STOPPED_IDS: ${{ steps.discover.outputs.stopped_ids }}
+        run: |
+          chmod +x "$SCRIPTS_DIR/restart.sh"
+          "$SCRIPTS_DIR/restart.sh"
+
+      # =====================================================================
+      # PHASE 5: HEALTH VERIFICATION
+      # =====================================================================
+      # Script: health-check.sh
+      # Responsibilities:
+      #   - Verify external service availability
+      #   - Retry with backoff for transient failures
+      # Non-blocking: Continues workflow even if health checks fail
+      # =====================================================================
+      - name: Health check - External services
+        id: health_external
+        if: |
+          steps.discover.outputs.running_count > 0 ||
+          steps.restart.outputs.restarted == 'true'
+        continue-on-error: true
+        run: |
+          chmod +x "$SCRIPTS_DIR/health-check.sh"
+          "$SCRIPTS_DIR/health-check.sh"
+
+      # =====================================================================
+      # PHASE 6: KEEP-ALIVE MAINTENANCE
+      # =====================================================================
+      # Script: keep-alive.sh
+      # Responsibilities:
+      #   - Send HTTP keep-alive signals (external)
+      #   - Send SSH keep-alive signals (internal)
+      # Non-blocking: Best-effort operation
+      # =====================================================================
+      - name: Send keep-alive signals
+        if: steps.discover.outputs.running_count > 0
+        continue-on-error: true
+        env:
+          RUNNING_IDS: ${{ steps.discover.outputs.running_ids }}
+        run: |
+          chmod +x "$SCRIPTS_DIR/keep-alive.sh"
+          "$SCRIPTS_DIR/keep-alive.sh"
+
+      # =====================================================================
+      # PHASE 7: OBSERVABILITY
+      # =====================================================================
+      # Script: report.sh
+      # Responsibilities:
+      #   - Generate execution summary
+      #   - Structured status reporting
+      # Always runs: Even if previous steps failed
+      # =====================================================================
+      - name: Generate execution summary
+        if: always()
+        env:
+          TOTAL_COUNT: ${{ steps.discover.outputs.total_count }}
+          RUNNING_COUNT: ${{ steps.discover.outputs.running_count }}
+          STOPPED_COUNT: ${{ steps.discover.outputs.stopped_count }}
+          ACTION_NEEDED: ${{ steps.discover.outputs.action_needed }}
+          RESTART_COUNT: ${{ steps.restart.outputs.restart_count }}
+          FAILED_COUNT: ${{ steps.restart.outputs.failed_count }}
+          RESTART_TIME: ${{ steps.restart.outputs.restart_time }}
+          JENKINS_STATUS: ${{ steps.health_external.outputs.jenkins_status }}
+        run: |
+          chmod +x "$SCRIPTS_DIR/report.sh"
+          "$SCRIPTS_DIR/report.sh"
+
+      # =====================================================================
+      # PHASE 8: ALERTING & INCIDENT MANAGEMENT
+      # =====================================================================
+      # Inline: GitHub API operations (requires github-script action)
+      # Responsibilities:
+      #   - Create incident alert on failure
+      #   - Prevent duplicate issues
+      # =====================================================================
+      - name: Create incident alert
+        if: failure() || (steps.restart.outputs.failed_count != '' && steps.restart.outputs.failed_count > '0')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const failedCount = '${{ steps.restart.outputs.failed_count }}' || '0';
+            const stoppedCount = '${{ steps.discover.outputs.stopped_count }}' || '0';
+            const totalCount = '${{ steps.discover.outputs.total_count }}' || '0';
+
+            const issueBody = `## 🚨 iximiuz Playground Keeper - Incident Alert
+
+            **Alert Type:** Restart Operation Failure
+            **Severity:** High (Manual intervention may be required)
+            **Timestamp:** ${new Date().toISOString()}
+
+            ### 📊 Failure Summary
+
+            - **Total Playgrounds:** ${totalCount}
+            - **Stopped Playgrounds:** ${stoppedCount}
+            - **Failed Restarts:** ${failedCount}
+
+            ### 🔍 Diagnostics
+
+            **Workflow Execution:**
+            - Run ID: ${{ github.run_id }}
+            - Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            **Possible Causes:**
+            1. iximiuz platform availability issues
+            2. API token expired or invalid
+            3. Network connectivity problems
+            4. Rate limiting
+
+            ### ✅ Recommended Actions
+
+            1. Review workflow logs for error details
+            2. Verify iximiuz platform status
+            3. Check API token validity (30-day expiration)
+            4. Manual playground restart if needed
+
+            ### 📈 Next Automated Attempt
+
+            Next scheduled run: ~3 minutes
+
+            ---
+
+            *Automated alert by iximiuz Playground Keeper*`;
+
+            const existingIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: '${{ env.ALERT_LABEL }}',
+              state: 'open'
+            });
+
+            if (existingIssues.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🚨 iximiuz Playground Keeper - Restart Failures',
+                body: issueBody,
+                labels: ['${{ env.ALERT_LABEL }}', 'automation', 'incident']
+              });
+              console.log('✅ Incident alert created');
+            } else {
+              console.log('ℹ️ Alert issue already exists');
+            }
