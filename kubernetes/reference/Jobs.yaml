@@ -1,0 +1,526 @@
+# Use Case 1: Non-Parallel Job
+# This Job runs a single Pod to compute π to 2000 places, representing a simple, non-parallel task.
+# It demonstrates basic Job configuration, backoff limit, and cleanup with TTL.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi-non-parallel
+  # Labels for organizational purposes
+  labels:
+    app: pi-calculator
+spec:
+  # Specifies the number of retries for failed Pods
+  backoffLimit: 4
+  # Limits the Job duration to 600 seconds (10 minutes)
+  activeDeadlineSeconds: 600
+  # Automatically deletes the Job and its Pods 100 seconds after completion
+  ttlSecondsAfterFinished: 100
+  # Defines the Pod template for the Job
+  template:
+    metadata:
+      # Pod template name
+      name: pi-po             
+    spec:
+      # Only Never or OnFailure are allowed for Jobs
+      restartPolicy: Never
+      containers:
+      - name: pi
+        image: perl:5.34.0
+        # Command to compute π to 2000 decimal places
+        command: ["perl", "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+---
+# Use Case 2: Parallel Job with Fixed Completion Count (NonIndexed)
+# This Job runs 10 Pods to process a fixed number of tasks (e.g., rendering video frames),
+# with up to 3 Pods running concurrently. It uses NonIndexed completion mode.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: video-frame-renderer
+  labels:
+    app: video-processing
+spec:
+  # Requires 10 successful Pod completions
+  completions: 10
+  # Runs up to 3 Pods concurrently
+  parallelism: 3
+  # Default backoff limit for retries
+  backoffLimit: 6
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: renderer
+        image: python:3.9
+        # Simulated command to process a video frame
+        command: ["python", "-c", "print('Rendering frame...'); import time; time.sleep(5)"]
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+---
+# Use Case 3: Parallel Job with Work Queue
+# This Job processes items from an external work queue (e.g., a message queue like RabbitMQ),
+# with 5 Pods running concurrently. No fixed completion count is specified.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: message-processor
+  labels:
+    app: queue-worker
+spec:
+  # No completions specified, as Pods coordinate via the queue
+  completions: null
+  # Runs 5 Pods concurrently to process queue items
+  parallelism: 5
+  backoffLimit: 6
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: worker
+        image: python:3.9
+        # Simulated command to process messages from a queue
+        command: ["python", "-c", "print('Processing message...'); import time; time.sleep(3)"]
+        env:
+        - name: QUEUE_URL
+          value: "amqp://rabbitmq:5672"
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+---
+# Use Case 4: Indexed Job with Static Work Assignment
+# This Job assigns unique indices to 8 Pods for static task assignment (e.g., distributed computing).
+# It uses Indexed completion mode and includes a success policy to complete early if specific indices succeed.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: distributed-computation
+  labels:
+    app: compute-task
+spec:
+  # Requires 8 completions, one per index (0 to 7)
+  completions: 8
+  # Runs up to 4 Pods concurrently
+  parallelism: 4
+  # Specifies Indexed completion mode for unique Pod indices
+  completionMode: Indexed
+  backoffLimit: 4
+  # Success policy: Job succeeds if index 0 or 1 succeeds
+  successPolicy:
+    rules:
+    - succeededIndexes: 0-1
+      succeededCount: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: compute
+        image: python:3.9
+        # Command uses JOB_COMPLETION_INDEX to process specific data
+        command: ["python", "-c", "import os; print(f'Processing index {os.environ.get(\"JOB_COMPLETION_INDEX\")}'); import time; time.sleep(2)"]
+        env:
+        - name: JOB_COMPLETION_INDEX
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.annotations['batch.kubernetes.io/job-completion-index']
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+---
+# Use Case 5: Indexed Job with Backoff Limit Per Index
+# This Job demonstrates backoff limit per index, allowing independent retry limits for each index.
+# It simulates a scenario where some indices fail, but the Job continues until a maximum number of failed indices is reached.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: backoff-limit-per-index
+  labels:
+    app: retry-task
+spec:
+  completions: 10
+  parallelism: 3
+  completionMode: Indexed
+  # Allows 1 retry per index
+  backoffLimitPerIndex: 1
+  # Terminates the Job if 5 indices fail
+  maxFailedIndexes: 5
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: task
+        image: python:3.9
+        # Simulates failure for even indices
+        command: ["python", "-c", "import os, sys; print('Hello world'); if int(os.environ.get('JOB_COMPLETION_INDEX')) % 2 == 0: sys.exit(1)"]
+        env:
+        - name: JOB_COMPLETION_INDEX
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.annotations['batch.kubernetes.io/job-completion-index']
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+---
+# Use Case 6: Job with Pod Failure Policy
+# This Job uses a pod failure policy to handle specific exit codes and Pod conditions,
+# optimizing cost by failing the Job immediately on certain errors.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pod-failure-policy
+  labels:
+    app: error-handler
+spec:
+  completions: 12
+  parallelism: 3
+  backoffLimit: 6
+  podFailurePolicy:
+    rules:
+    # Fails the Job if the main container exits with code 42 (e.g., software bug)
+    - action: FailJob
+      onExitCodes:
+        containerName: main
+        operator: In
+        values: [42]
+    # Ignores failures due to Pod disruptions (e.g., preemption)
+    - action: Ignore
+      onPodConditions:
+      - type: DisruptionTarget
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: main
+        image: bash:5
+        # Simulates a bug with exit code 42
+        command: ["bash", "-c", "echo 'Hello world!' && sleep 5 && exit 42"]
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+---
+# Use Case 7: Suspended Job with Mutable Scheduling Directives
+# This Job starts in a suspended state, allowing updates to scheduling constraints
+# before execution. It demonstrates advanced control over Pod placement.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: suspended-job
+  labels:
+    app: constrained-task
+spec:
+  # Starts the Job in a suspended state
+  suspend: true
+  completions: 5
+  parallelism: 1
+  backoffLimit: 4
+  template:
+    spec:
+      restartPolicy: Never
+      # Node affinity to ensure Pods run on specific nodes
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: topology.kubernetes.io/zone
+                operator: In
+                values:
+                - us-west-2a
+      containers:
+      - name: task
+        image: python:3.9
+        command: ["python", "-c", "print('Running task...'); import time; time.sleep(3)"]
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+---
+# Use Case 8: Job with Pod-to-Pod Communication
+# This Job uses a headless Service for Pods to communicate, suitable for collaborative tasks.
+# It assumes a Service named 'compute-service' exists for DNS-based communication.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pod-communication
+  labels:
+    app: collaborative-task
+spec:
+  completions: 4
+  parallelism: 4
+  completionMode: Indexed
+  backoffLimit: 4
+  template:
+    spec:
+      restartPolicy: Never
+      # Associates Pods with a headless Service for communication
+      # Service must be predefined with selector matching Pod labels
+      # Example: selector: app=collaborative-task
+      containers:
+      - name: compute
+        image: python:3.9
+        # Simulated command to communicate with other Pods
+        command: ["python", "-c", "import os; print(f'Index {os.environ.get(\"JOB_COMPLETION_INDEX\")} communicating...'); import time; time.sleep(5)"]
+        env:
+        - name: JOB_COMPLETION_INDEX
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.annotations['batch.kubernetes.io/job-completion-index']
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+---
+# Use Case 9: Job with Active Deadline and Custom Pod Selector
+# This Job enforces a time limit and uses a custom Pod selector to take over Pods from an existing Job.
+# It demonstrates advanced control and cleanup.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi-with-timeout
+  labels:
+    app: pi-calculator
+spec:
+  # Limits the Job duration to 100 seconds
+  activeDeadlineSeconds: 100
+  backoffLimit: 5
+  # Allows manual specification of the Pod selector
+  manualSelector: true
+  selector:
+    matchLabels:
+      batch.kubernetes.io/controller-uid: a8f3d00d-c6d2-11e5-9f87-42010af00002
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: pi
+        image: perl:5.34.0
+        command: ["perl", "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+---
+# Use Case 10: Elastic Indexed Job with External Controller
+# This Job demonstrates elastic scaling and delegation to an external controller.
+# It is suitable for dynamic workloads like distributed training.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: elastic-training
+  labels:
+    app: training-task
+spec:
+  completions: 8
+  parallelism: 8
+  completionMode: Indexed
+  backoffLimit: 4
+  # Delegates Job management to a custom controller
+  managedBy: custom.training.controller
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: trainer
+        image: python:3.9
+        # Simulated training task
+        command: ["python", "-c", "import os; print(f'Training index {os.environ.get(\"JOB_COMPLETION_INDEX\")}'); import time; time.sleep(5)"]
+        env:
+        - name: JOB_COMPLETION_INDEX
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.annotations['batch.kubernetes.io/job-completion-index']
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "2"
+---
+# Comprehensive Job with Maximum Placeholders
+# This Job demonstrates a distributed computation task with advanced features:
+# - Indexed completion mode for static work assignment
+# - Success policy for early completion
+# - Pod failure policy to handle specific errors
+# - Backoff limit per index for independent retries
+# - Suspension for initial pause
+# - Mutable scheduling directives for Pod placement
+# - Active deadline to limit runtime
+# - TTL for automatic cleanup
+# - Delayed pod replacement policy
+# It simulates a scenario where Pods process data chunks, with some indices failing.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: comprehensive-computation
+  # Organizational labels for identification
+  labels:
+    app: distributed-compute
+    environment: production
+spec:
+  # Starts the Job in a suspended state to allow scheduling adjustments
+  suspend: true
+  # Requires 12 completions, one per index (0 to 11)
+  completions: 12
+  # Runs up to 4 Pods concurrently
+  parallelism: 4
+  # Uses Indexed completion mode for unique Pod indices
+  completionMode: Indexed
+  # Limits the Job duration to 600 seconds (10 minutes)
+  activeDeadlineSeconds: 600
+  # Allows 4 retries per index for failed Pods
+  backoffLimitPerIndex: 4
+  # Terminates the Job if 6 indices fail
+  maxFailedIndexes: 6
+  # Defines success criteria: Job succeeds if 2 of indices 0, 2, or 4 succeed
+  successPolicy:
+    rules:
+    - succeededIndexes: 0,2,4
+      succeededCount: 2
+  # Customizes failure handling based on exit codes and Pod conditions
+  podFailurePolicy:
+    rules:
+    # Fails the Job if the main container exits with code 42 (e.g., software bug)
+    - action: FailJob
+      onExitCodes:
+        containerName: compute
+        operator: In
+        values: [42]
+    # Ignores failures due to Pod disruptions (e.g., preemption)
+    - action: Ignore
+      onPodConditions:
+      - type: DisruptionTarget
+    # Avoids retries for a specific index if it fails with code 100
+    - action: FailIndex
+      onExitCodes:
+        containerName: compute
+        operator: In
+        values: [100]
+  # Creates replacement Pods only when originals reach Failed phase
+  podReplacementPolicy: Failed
+  # Automatically deletes the Job and its Pods 300 seconds after completion
+  ttlSecondsAfterFinished: 300
+  # Defines the Pod template
+  template:
+    metadata:
+      # Labels for Pod identification and Service association
+      labels:
+        app: distributed-compute
+    spec:
+      # Ensures Pods are not restarted locally; failed Pods are replaced
+      restartPolicy: Never
+      # Node affinity to control Pod placement (mutable while suspended)
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: topology.kubernetes.io/zone
+                operator: In
+                values:
+                - us-west-2a
+      # Tolerations to allow Pods on specific nodes
+      tolerations:
+      - key: "dedicated"
+        operator: "Equal"
+        value: "compute"
+        effect: "NoSchedule"
+      containers:
+      - name: compute
+        image: python:3.9
+        # Simulated command to process data based on index
+        # Fails with exit code 42 for index 3, code 100 for index 5
+        command: 
+        - python
+        - -c
+        - |
+          import os, sys
+          index = int(os.environ.get('JOB_COMPLETION_INDEX', '0'))
+          print(f'Processing index {index}')
+          if index == 3:
+            sys.exit(42)  # Triggers FailJob
+          if index == 5:
+            sys.exit(100)  # Triggers FailIndex
+          import time
+          time.sleep(5)
+        # Environment variable to access the completion index
+        env:
+        - name: JOB_COMPLETION_INDEX
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.annotations['batch.kubernetes.io/job-completion-index']
+        resources:
+          # Resource limits for realistic usage
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+---
+# Indexed Job with Shared PVC
+# Each pod should write Hello from $JOB_COMPLETION_INDEX to /data/output_$INDEX.txt
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: task-pv-volume
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: file-writer
+spec:
+  completions: 3
+  parallelism: 3
+  completionMode: Indexed
+  template:
+    metadata:
+      annotations:
+        batch.kubernetes.io/job-completion-index: "true"
+    spec:
+      containers:
+      - name: writer
+        image: busybox
+        command:
+          - /bin/sh
+          - -c
+          - echo "Hello from pod $JOB_COMPLETION_INDEX" > /data/output_$JOB_COMPLETION_INDEX.txt
+        env:
+        - name: JOB_COMPLETION_INDEX
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.annotations['batch.kubernetes.io/job-completion-index']
+        volumeMounts:
+        - name: shared-vol
+          mountPath: /data
+      restartPolicy: Never
+      volumes:
+      - name: shared-vol
+        persistentVolumeClaim:
+          claimName: shared-data

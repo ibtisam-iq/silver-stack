@@ -1,0 +1,153 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ibt-sam
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: deploy-1
+  name: deploy-1
+  namespace: ibt-sam
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deploy-1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: deploy-1
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html
+          name: html
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - echo 'love you my sweetheart, ibtisam' > /html/index.html
+        image: busybox:1.28
+        name: init-container
+        volumeMounts:
+        - mountPath: /html
+          name: html
+      volumes:
+      - emptyDir: {}
+        name: html
+status: {}
+---
+apiVersion: v1
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURFVENDQWZtZ0F3SUJBZ0lVSExNNndmT3lBNXh6QVZPbERYaldHbEw4bnlNd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0dERVdNQlFHQTFVRUF3d05hV0owTFhOaGJTNXNiMk5oYkRBZUZ3MHlOVEV4TVRReE5EQTFNalJhRncweQpOakV4TVRReE5EQTFNalJhTUJneEZqQVVCZ05WQkFNTURXbGlkQzF6WVcwdWJHOWpZV3d3Z2dFaU1BMEdDU3FHClNJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUN6YUdpaVNVM3dSbWZPSU1SN1JQc1dPY0tOZzB3K3ZlLzUKK2VzSnRFdSs4cmQwVFkrQlc0a0pRbThKNXRZN2JnSWJFZU84aHdETDJuN3V2cllaT2JyZUxNcG5kemtBRFlKaApodS9iKzlHK0trQk9BRUZGOVN0RTMxRGhsU0h4cnB6RUdCSUsrVk5jV0pUSytYclQ3ZmFmSHJEc1dUOGsrdlZDCkx6WFA5TGxIZHhwa2pPbHV3VVl2TndqNGhyRncvM3VaTmoyUEtheENaUjVHYlJORVN1YVcyWWwzOSttVXJsaUcKc2VkazBSWkxqTEpPYWpvNVhJWXNKVC93VkxHajdFcGtPcFFRNnFHVXVJekdJR0JhRDVCUStuOFZNWWdqU0loLwpKOCs2NjdxbThub2xwNGFOVnJUVnBrVUJOQzYvcTY3dnY1S25scjFXSlM3SGszSml0WGg1QWdNQkFBR2pVekJSCk1CMEdBMVVkRGdRV0JCUlNSNm93MTVUU2pTekVSc25RT0VsdlA4bzNIREFmQmdOVkhTTUVHREFXZ0JSU1I2b3cKMTVUU2pTekVSc25RT0VsdlA4bzNIREFQQmdOVkhSTUJBZjhFQlRBREFRSC9NQTBHQ1NxR1NJYjNEUUVCQ3dVQQpBNElCQVFCT3MvQUpPY2hBamFBNEFlamF6KzljUmFINEFVdEZTaVQxdnZ4QVhOMEtpaDBWWmw3WEpYTm1TZHhWCk1tbm1rVzg1Ui9PNDlnLytHTHFJMTVHM0M2dE5QUEdHdzBBN1pDb1oxNVlEY1Fzb0dNTEdQdjdJbHpDa1FXeGcKQ2l5Ujk1OWV2UnJ1Z3ZSalJqc2VaZDlUaHdYZVB1VGMrc01idVBybFhIUGVCTENMV1ZkUWFyTENDNUhuVUdTLwppME1PVUlGT28vZkJvajF2ZHdRMnd0TUhlN212NnJkRWw1TmdyS3htQ2tJa0VVMUpMUURyUnpQM3FaSUlqbWhIClFwS0Y0YnR5U0JvdlZNS0Z0TUZGZDRVdlprZGc5QU9yK0o2UlhWOTVsVThYbis1dytGMm5vM0h2dTNFSUF1eloKYUlpeGIyRk5GRjRvOVRmaEFpM2ZPZDR3RXZSRgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2QUlCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktZd2dnU2lBZ0VBQW9JQkFRQ3phR2lpU1Uzd1JtZk8KSU1SN1JQc1dPY0tOZzB3K3ZlLzUrZXNKdEV1KzhyZDBUWStCVzRrSlFtOEo1dFk3YmdJYkVlTzhod0RMMm43dQp2cllaT2JyZUxNcG5kemtBRFlKaGh1L2IrOUcrS2tCT0FFRkY5U3RFMzFEaGxTSHhycHpFR0JJSytWTmNXSlRLCitYclQ3ZmFmSHJEc1dUOGsrdlZDTHpYUDlMbEhkeHBrak9sdXdVWXZOd2o0aHJGdy8zdVpOajJQS2F4Q1pSNUcKYlJORVN1YVcyWWwzOSttVXJsaUdzZWRrMFJaTGpMSk9ham81WElZc0pUL3dWTEdqN0Vwa09wUVE2cUdVdUl6RwpJR0JhRDVCUStuOFZNWWdqU0loL0o4KzY2N3FtOG5vbHA0YU5WclRWcGtVQk5DNi9xNjd2djVLbmxyMVdKUzdICmszSml0WGg1QWdNQkFBRUNnZ0VBQnJnQzdmSW92d0wrWXg1R1ZYUVdpVnVZNTVic0p4ekYrYlJGNHc2WjJES3UKNW5MN1dQOUs3ZmIrZ1hlc3lTSkkvNXB0d24vMW5ibVc2VUNDZEovam1aN0NUU2JCaGNXN3Z0R1RuTzE4eW01VQpXQlJHZHg2WEkvNDFtdCtHRG5WZmpiQ280WVhVVm9aMklVTFpSeGJhL080K0toTDdYRnB1UWdtZlIvRm44cml5CnNhdndKL0pHZjAzZjFIYUdndi8wVFRtaXZZMHJaY1pXcEtMWlZFalFEam1jaE5Hc0Y3dDRWaVdGdmdFQ3FPNXoKa2RJV0Urbm10RjQ3dUh2a1hvNEhSckYvazNrb01iUnVBdGtEZkpRVUhWbEFSNTNXaldhcDQ2Q1pmaFhCaWxFTAoxblhDa0dqRVFVdW5zZGppV04rU3oyQzdMUDFPWFptVWVjcVlLV3VjYlFLQmdRRHBzcUJiTU0ycEdOMURtSi9yCldpcEVrOHpudmEwRjhCeSsvSndocFdVZGxkY2ViSSs5c3RZTENQYlRaeG1BSVBLdXVTUVVTUlMzOEJnLzRMZE4KK0puUWhZckFSTGkwaG9OQ3RQT3dWRUhteFZKeXFFUWZac2N6ZVRISzM1UlJ4Qk9aYSsveUVFWDRjbVFoOTJBQwpnOW5hQjNaVzFWd0VEcVRqNGIzbXErcEZoUUtCZ1FERWgzS201cmFUUWp3TkVkZzBmNG1SWHphOW02SW5DMWk3CkJEYnRFY3ptTGVFbjhvditYUHI3Wlg2aWZwY2xlMVpncURHN0VXK1hONVBQVlZOUks4OWQvZ0J4UE9zMHBpRnEKNmpyWDVpNk5NcXJWOGdOU1VUU1VvbWRJQVNicWRpSnN6NlJsV2UxYXNkeDZOMGdmbzFyL3lXOEYyaE15YmJBQgpDRUgvQXNSUFpRS0JnRm5PbEVNVytTR3ZkWEJCbWNzVzVrRmVUeE1MV0E5OUczN2xrcFozZWVrcHFQWi9INm4xCnJMMm0zenVVVmo5ZjZnTHRFUWxlb0VDaldwNUpuQWV4cm1Kc3YwcHQzbEU1ay8yeGppaEg2TjluR3UwRzdzN20KYjB5L21UdnVPWkJHZW9XdDdoS200RXkrb081UW95dTBRYWJBMFdCRE04NDNWblJnVHRyelc5OEZBb0dBSkx3VQpxREhUeXE3RXZzU3BIeGIveGRhQVN1eStZSUgwY2ZDVnU3WnFFRlJmRTdKNGpIRWcwTURsN01Xd3h1YkkvSVF6CjEzMm8yQ0VoVmMzakp2Y0RhZFJDak9nUUp1VXV0ZWRXWEdqQUp0QmpzbDNzVlFTc3lXT1ozcEdvam9iS1pJQmoKZ0RaUThYVHhlejYrRW52Y1ZKZDRVeVd5Rk9qL3p4R1dGRzZWOXlrQ2dZQjZrb3FhZHdrTlAydktoU2FZem5UegpMYytFQW95Y1dCTmxOQkw2L0tWQmI4ZnBIN2NRQ1NSdmtHNjJtam9vbFlDeDQwQ29tdUUwZjA3SWl3Z3lVZlEyCi9JU2Z0NjVIM3pCN0ZDT2VtazlQQkFVcHFKaXAyblR3aTN3WFRZQldKM245TzNicUI4MVFMVndsVDR0MkF0bG4KS3dxbmk2QTZrTW1PcEs2RS9oZ2RZdz09Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K
+kind: Secret
+metadata:
+  name: deploy-1
+  namespace: ibt-sam
+type: kubernetes.io/tls
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: deploy-1
+  name: deploy-1
+  namespace: ibt-sam
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: deploy-1
+status:
+  loadBalancer: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: abc
+  namespace: ibt-sam
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ibt-sam.local
+    http:
+      paths:
+      - backend:
+          service:
+            name: deploy-1
+            port:
+              number: 8080
+        path: /test
+        pathType: Prefix
+  tls:
+  - hosts:
+    - ibt-sam.local
+    secretName: deploy-1
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURFVENDQWZtZ0F3SUJBZ0lVSExNNndmT3lBNXh6QVZPbERYaldHbEw4bnlNd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0dERVdNQlFHQTFVRUF3d05hV0owTFhOaGJTNXNiMk5oYkRBZUZ3MHlOVEV4TVRReE5EQTFNalJhRncweQpOakV4TVRReE5EQTFNalJhTUJneEZqQVVCZ05WQkFNTURXbGlkQzF6WVcwdWJHOWpZV3d3Z2dFaU1BMEdDU3FHClNJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUN6YUdpaVNVM3dSbWZPSU1SN1JQc1dPY0tOZzB3K3ZlLzUKK2VzSnRFdSs4cmQwVFkrQlc0a0pRbThKNXRZN2JnSWJFZU84aHdETDJuN3V2cllaT2JyZUxNcG5kemtBRFlKaApodS9iKzlHK0trQk9BRUZGOVN0RTMxRGhsU0h4cnB6RUdCSUsrVk5jV0pUSytYclQ3ZmFmSHJEc1dUOGsrdlZDCkx6WFA5TGxIZHhwa2pPbHV3VVl2TndqNGhyRncvM3VaTmoyUEtheENaUjVHYlJORVN1YVcyWWwzOSttVXJsaUcKc2VkazBSWkxqTEpPYWpvNVhJWXNKVC93VkxHajdFcGtPcFFRNnFHVXVJekdJR0JhRDVCUStuOFZNWWdqU0loLwpKOCs2NjdxbThub2xwNGFOVnJUVnBrVUJOQzYvcTY3dnY1S25scjFXSlM3SGszSml0WGg1QWdNQkFBR2pVekJSCk1CMEdBMVVkRGdRV0JCUlNSNm93MTVUU2pTekVSc25RT0VsdlA4bzNIREFmQmdOVkhTTUVHREFXZ0JSU1I2b3cKMTVUU2pTekVSc25RT0VsdlA4bzNIREFQQmdOVkhSTUJBZjhFQlRBREFRSC9NQTBHQ1NxR1NJYjNEUUVCQ3dVQQpBNElCQVFCT3MvQUpPY2hBamFBNEFlamF6KzljUmFINEFVdEZTaVQxdnZ4QVhOMEtpaDBWWmw3WEpYTm1TZHhWCk1tbm1rVzg1Ui9PNDlnLytHTHFJMTVHM0M2dE5QUEdHdzBBN1pDb1oxNVlEY1Fzb0dNTEdQdjdJbHpDa1FXeGcKQ2l5Ujk1OWV2UnJ1Z3ZSalJqc2VaZDlUaHdYZVB1VGMrc01idVBybFhIUGVCTENMV1ZkUWFyTENDNUhuVUdTLwppME1PVUlGT28vZkJvajF2ZHdRMnd0TUhlN212NnJkRWw1TmdyS3htQ2tJa0VVMUpMUURyUnpQM3FaSUlqbWhIClFwS0Y0YnR5U0JvdlZNS0Z0TUZGZDRVdlprZGc5QU9yK0o2UlhWOTVsVThYbis1dytGMm5vM0h2dTNFSUF1eloKYUlpeGIyRk5GRjRvOVRmaEFpM2ZPZDR3RXZSRgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2QUlCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktZd2dnU2lBZ0VBQW9JQkFRQ3phR2lpU1Uzd1JtZk8KSU1SN1JQc1dPY0tOZzB3K3ZlLzUrZXNKdEV1KzhyZDBUWStCVzRrSlFtOEo1dFk3YmdJYkVlTzhod0RMMm43dQp2cllaT2JyZUxNcG5kemtBRFlKaGh1L2IrOUcrS2tCT0FFRkY5U3RFMzFEaGxTSHhycHpFR0JJSytWTmNXSlRLCitYclQ3ZmFmSHJEc1dUOGsrdlZDTHpYUDlMbEhkeHBrak9sdXdVWXZOd2o0aHJGdy8zdVpOajJQS2F4Q1pSNUcKYlJORVN1YVcyWWwzOSttVXJsaUdzZWRrMFJaTGpMSk9ham81WElZc0pUL3dWTEdqN0Vwa09wUVE2cUdVdUl6RwpJR0JhRDVCUStuOFZNWWdqU0loL0o4KzY2N3FtOG5vbHA0YU5WclRWcGtVQk5DNi9xNjd2djVLbmxyMVdKUzdICmszSml0WGg1QWdNQkFBRUNnZ0VBQnJnQzdmSW92d0wrWXg1R1ZYUVdpVnVZNTVic0p4ekYrYlJGNHc2WjJES3UKNW5MN1dQOUs3ZmIrZ1hlc3lTSkkvNXB0d24vMW5ibVc2VUNDZEovam1aN0NUU2JCaGNXN3Z0R1RuTzE4eW01VQpXQlJHZHg2WEkvNDFtdCtHRG5WZmpiQ280WVhVVm9aMklVTFpSeGJhL080K0toTDdYRnB1UWdtZlIvRm44cml5CnNhdndKL0pHZjAzZjFIYUdndi8wVFRtaXZZMHJaY1pXcEtMWlZFalFEam1jaE5Hc0Y3dDRWaVdGdmdFQ3FPNXoKa2RJV0Urbm10RjQ3dUh2a1hvNEhSckYvazNrb01iUnVBdGtEZkpRVUhWbEFSNTNXaldhcDQ2Q1pmaFhCaWxFTAoxblhDa0dqRVFVdW5zZGppV04rU3oyQzdMUDFPWFptVWVjcVlLV3VjYlFLQmdRRHBzcUJiTU0ycEdOMURtSi9yCldpcEVrOHpudmEwRjhCeSsvSndocFdVZGxkY2ViSSs5c3RZTENQYlRaeG1BSVBLdXVTUVVTUlMzOEJnLzRMZE4KK0puUWhZckFSTGkwaG9OQ3RQT3dWRUhteFZKeXFFUWZac2N6ZVRISzM1UlJ4Qk9aYSsveUVFWDRjbVFoOTJBQwpnOW5hQjNaVzFWd0VEcVRqNGIzbXErcEZoUUtCZ1FERWgzS201cmFUUWp3TkVkZzBmNG1SWHphOW02SW5DMWk3CkJEYnRFY3ptTGVFbjhvditYUHI3Wlg2aWZwY2xlMVpncURHN0VXK1hONVBQVlZOUks4OWQvZ0J4UE9zMHBpRnEKNmpyWDVpNk5NcXJWOGdOU1VUU1VvbWRJQVNicWRpSnN6NlJsV2UxYXNkeDZOMGdmbzFyL3lXOEYyaE15YmJBQgpDRUgvQXNSUFpRS0JnRm5PbEVNVytTR3ZkWEJCbWNzVzVrRmVUeE1MV0E5OUczN2xrcFozZWVrcHFQWi9INm4xCnJMMm0zenVVVmo5ZjZnTHRFUWxlb0VDaldwNUpuQWV4cm1Kc3YwcHQzbEU1ay8yeGppaEg2TjluR3UwRzdzN20KYjB5L21UdnVPWkJHZW9XdDdoS200RXkrb081UW95dTBRYWJBMFdCRE04NDNWblJnVHRyelc5OEZBb0dBSkx3VQpxREhUeXE3RXZzU3BIeGIveGRhQVN1eStZSUgwY2ZDVnU3WnFFRlJmRTdKNGpIRWcwTURsN01Xd3h1YkkvSVF6CjEzMm8yQ0VoVmMzakp2Y0RhZFJDak9nUUp1VXV0ZWRXWEdqQUp0QmpzbDNzVlFTc3lXT1ozcEdvam9iS1pJQmoKZ0RaUThYVHhlejYrRW52Y1ZKZDRVeVd5Rk9qL3p4R1dGRzZWOXlrQ2dZQjZrb3FhZHdrTlAydktoU2FZem5UegpMYytFQW95Y1dCTmxOQkw2L0tWQmI4ZnBIN2NRQ1NSdmtHNjJtam9vbFlDeDQwQ29tdUUwZjA3SWl3Z3lVZlEyCi9JU2Z0NjVIM3pCN0ZDT2VtazlQQkFVcHFKaXAyblR3aTN3WFRZQldKM245TzNicUI4MVFMVndsVDR0MkF0bG4KS3dxbmk2QTZrTW1PcEs2RS9oZ2RZdz09Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K
+kind: Secret
+metadata:
+  name: deploy-1
+  namespace: default
+type: kubernetes.io/tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: example-gateway
+  namespace: default
+spec:
+  gatewayClassName: nginx
+  listeners:
+  - name: https
+    protocol: HTTPS
+    port: 443
+    allowedRoutes:
+      namespaces:
+        from: All
+    hostname: ibt-sam.local
+    tls:
+      certificateRefs:
+      - kind: Secret
+        name: deploy-1
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: example-httproute
+  namespace: ibt-sam
+spec:
+  parentRefs:
+  - name: example-gateway
+    namespace: default
+  hostnames:
+  - "ibt-sam.local"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: deploy-1
+      port: 8080
+
+# controlplane ~ ➜  curl --resolve ibt-sam.local:32595:192.168.102.176 https://ibt-sam.local:32595/test -k
+# love you my sweetheart, ibtisam
+
+# controlplane ~ ➜  curl --resolve ibt-sam.local:30511:192.168.102.176 https://ibt-sam.local:30511 -k
+# love you my sweetheart, ibtisam

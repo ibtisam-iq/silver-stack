@@ -1,0 +1,96 @@
+# -------------------------------
+# 1. IngressClass Definition
+# -------------------------------
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: nginx  # Name used in ingress.spec.ingressClassName to bind this class.
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"  # Makes this the default ingress class for all ingress resources (optional).
+spec:
+  controller: k8s.io/ingress-nginx  # The controller this class refers to (NGINX here).
+  parameters:
+    apiGroup: k8s.nginx.org
+    kind: NginxIngressController
+    name: nginx-config  # Optional: link to custom controller config object.
+
+---
+
+# -------------------------------
+# 2. Ingress Resource
+# -------------------------------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bankapp-ingress
+  namespace: default  # Change if your app runs in another namespace.
+  annotations:
+    # Let cert-manager know which ClusterIssuer to use for the TLS certificate.
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+
+    # Force all HTTP traffic to redirect to HTTPS.
+    # Redirect http://ibtisam-iq.com requests to https://ibtisam-iq.com
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"        #  "" mandatory
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+
+    # Rewrite URL path before passing to backend (optional).
+    nginx.ingress.kubernetes.io/rewrite-target: /                # mandatory only, if /test is NOT available, so it redirects /test → /
+
+    # Define backend service protocol.
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+
+    # Optional security settings for NGINX
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: DENY";
+
+spec:
+  ingressClassName: nginx  # Matches the IngressClass defined above.
+  
+  defaultBackend:                      # Mandatory, if spec.rules is missing
+  service:
+    name: default-http-backend # service must exist in the same namespace
+    port:
+      number: 80
+
+  rules:
+    - host: www.ibtisam-iq.com  # The domain name this ingress will respond to.
+      http:
+        paths:
+          - path: /test  # URL prefix to match.
+            pathType: Prefix  # Matches all paths beginning with `/`.
+            backend:
+              service:
+                name: bankapp-service  # Kubernetes service name that receives traffic.
+                port:
+                  number: 80  # Port exposed by the service.
+
+  tls:
+    - hosts:
+        - www.ibtisam-iq.com    # The host for which the TLS cert is requested.
+      secretName: ibtisamx-tls  # Cert-manager will store the TLS cert & private key here, 
+                                # later used by Ingress Controllor for SSL termination, and it forwards HTTP to bankapp-service.
+
+---
+
+# -------------------------------
+# 3. ClusterIssuer for Let's Encrypt
+# -------------------------------
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod  # This name is referenced in the ingress annotation.
+spec:
+  acme:
+    # ACME protocol used by Let's Encrypt to issue certs.
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: muhammad@ibtisam-iq.com  # Your email address for notifications and recovery.
+
+    privateKeySecretRef:
+      name: letsencrypt-prod  # Secret to store your private key for Let's Encrypt.
+
+    solvers:
+      - http01:
+          ingress:
+            class: nginx  # Solves HTTP challenge using the Ingress Controller.
+

@@ -1,0 +1,27 @@
+# ----------------------------
+# StorageClass Configuration
+# ----------------------------
+# This defines a dynamic provisioning configuration for persistent volumes
+# using the Kubernetes built-in 'kubernetes.io/aws-ebs' provisioner (for AWS).
+# You can change it based on your cloud/storage backend.
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: standard-storage  # Name used by PVCs to reference this class
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"  # Makes this the default SC
+provisioner: kubernetes.io/aws-ebs  # Provisioner responsible for creating storage backend
+
+# Parameters vary by provisioner. For AWS EBS:
+parameters:
+  type: gp2                   # gp2 = General Purpose SSD
+  fsType: ext4                # Filesystem to be used (ext4/xfs/etc)
+  encrypted: "true"           # Enable EBS encryption
+  kmsKeyId: <your-kms-key>    # Optional: use if you want custom KMS key
+
+# How to handle PVs after PVC is deleted
+reclaimPolicy: Delete         # Options: Retain | Delete
+volumeBindingMode: WaitForFirstConsumer  # When to bind the volume (delays provisioning until pod is scheduled)
+allowVolumeExpansion: true    # Allow PVC to request more size later
+

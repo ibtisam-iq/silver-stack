@@ -1,0 +1,64 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: webapp-hpa                       # Name of the HPA object
+  namespace: default                     # 🔥 Must be in the same namespace as the Deployment it targets
+  labels:
+    app: webapp
+    environment: production
+
+spec:
+  scaleTargetRef:                        # 📌 This tells HPA *what* to scale
+    apiVersion: apps/v1                  # Must match the target object
+    kind: Deployment                     # Could also be StatefulSet, ReplicaSet, etc.
+    name: webapp-deployment              # Target object name (must exist)
+                                         # namespace: not mentioned, not a key here.
+
+  minReplicas: 2                         # 🧊 Lower limit of pods - ensures availability
+  maxReplicas: 10                        # 🔥 Upper limit - prevents over-scaling
+
+  metrics:
+    # 💻 Scale based on CPU utilization %
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization                # 👈 Uses percentage of CPU request (not absolute value)
+        averageUtilization: 70          # If average CPU > 70%, trigger scaling
+
+    # 🧠 Scale based on memory utilization %
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization                # 👈 Uses percentage of memory request
+        averageUtilization: 80          # If memory > 80%, HPA considers scaling up
+
+    # 🧠🧠 Scale based on absolute memory usage (not %)
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: AverageValue              # 👈 Use exact memory usage across pods
+        averageValue: 500Mi             # If each pod uses over 500MiB on average → scale
+
+  behavior:                              # 🎛️ Fine-tune how scaling happens
+    scaleUp:
+      stabilizationWindowSeconds: 30     # ⏳ Wait this long before considering another scale-up
+      selectPolicy: Max                  # 🧠 If multiple policies match, pick the most aggressive
+      policies:
+        - type: Percent
+          value: 100                     # 🔺 Double the current replicas (100% increase)
+          periodSeconds: 15              # in a 15-second window
+        - type: Pods
+          value: 4                       # Or add max 4 pods in a 15s window
+
+    scaleDown:
+      stabilizationWindowSeconds: 60     # ⏳ Delay scale-down decisions to avoid rapid drops
+      selectPolicy: Min                  # 🧠 Be conservative — pick the gentlest downscale
+      policies:
+        - type: Percent
+          value: 50                      # 🔻 Reduce by 50% at most
+          periodSeconds: 60              # Check every 60s
+        - type: Pods
+          value: 2                       # Or remove max 2 pods in 60s

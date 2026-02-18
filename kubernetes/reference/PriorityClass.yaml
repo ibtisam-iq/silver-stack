@@ -1,0 +1,51 @@
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: high-priority  # Name of the PriorityClass, used to refer to it in pods
+  labels:
+    app: critical-app  # Optional label for better organization
+spec:
+  value: 1000000  # The priority value for the class. Higher values indicate higher priority
+  globalDefault: false  # If true, this will be the default priority for all pods without a specified PriorityClass
+  description: "High priority for critical applications, ensuring they are not evicted under resource pressure."
+  preemptionPolicy: PreemptLowerPriority  # Defines if higher priority pods can preempt lower priority pods. Options: PreemptLowerPriority or Never.
+  qosClass: Guaranteed  # Ensures that the pods are guaranteed resources (memory, CPU). Can be: BestEffort, Burstable, Guaranteed.
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: critical-app-pod
+  labels:
+    app: critical-app  # Label to identify and organize the pod
+spec:
+  priorityClassName: high-priority  # The pod will use the high-priority class defined above
+  containers:
+    - name: nginx
+      image: nginx:latest
+      ports:
+        - containerPort: 80
+      resources:
+        limits:
+          memory: "512Mi"  # Ensure pod has a memory limit
+          cpu: "1"  # Ensure pod has a CPU limit
+        requests:
+          memory: "256Mi"  # Requested memory resource for the pod
+          cpu: "0.5"  # Requested CPU resource for the pod
+  nodeSelector: 
+    app: critical  # Ensure pod runs on nodes with this label
+  affinity:  # Define node affinity rules for scheduling pods based on node characteristics
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - critical-app
+          topologyKey: kubernetes.io/hostname
+  tolerations:
+    - key: "critical"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"  # Tolerates node taints for critical scheduling
+

@@ -1,0 +1,25 @@
+# ----------------------------
+# PersistentVolume Configuration (Static Provisioning)
+# ----------------------------
+# This is manually created storage. Best for on-prem or non-cloud setups.
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: bankapp-pv
+spec:
+  capacity:
+    storage: 10Gi  # Total size of the disk
+  accessModes:
+    - ReadWriteOnce  # Only one node can mount with read-write access
+
+  persistentVolumeReclaimPolicy: Retain  # Keeps data even after PVC deletion
+  storageClassName: standard-storage  # Must match PVC & SC
+  volumeMode: Filesystem  # Other option: Block
+
+  # This example uses hostPath, suitable for dev/testing (not production)
+  # In production, this might use awsElasticBlockStore, nfs, or csi drivers instead of hostPath.
+  hostPath:
+    path: /mnt/data/bankapp  # Path on the host machine where data will be stored
+    type: DirectoryOrCreate  # Create the directory if it doesn't exist
+
