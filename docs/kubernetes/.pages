@@ -1,0 +1,11 @@
+title: Kubernetes
+icon: simple/kubernetes
+collapse: false  # Keep expanded for immediate visibility
+
+nav:
+  - Overview: index.md  # NEW: Explicit for index (clean title; avoids "Section" junk)
+  - Self-Managed with Kubeadm: self-managed-kubeadm.md  # Custom: Short & descriptive
+  - Local Lightweight: local-lightweight.md  # Custom: As-is, but explicit
+  - CNI Networking: cni-networking.md  # Custom: Matches your guide focus
+  - Addons: addons.md  # Custom: Simple; add "Kubernetes Addons" if preferred
+

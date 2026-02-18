@@ -1,0 +1,116 @@
+# Basic site metadata – required for GH Pages title/previews
+site_name: "Infra Bootstrap"
+site_description: "Comprehensive guide to bootstrapping Kubernetes, servers, and tools for modern infra."
+site_author: "Muhammad Ibtisam"  # NEW: For SEO/Open Graph on GH Pages
+site_url: "https://bootstrap.ibtisam-iq.com"  # Your custom domain (if using; GH Pages supports CNAME)
+
+# Repository integration – enables "Edit this page" links on GH Pages
+repo_url: "https://github.com/ibtisam-iq/infra-bootstrap"
+repo_name: "infra-bootstrap"  # GitHub slug for buttons
+edit_uri: edit/main/docs/  # NEW: Path to edit files (assumes 'main' branch; change if 'master')
+
+# Build & output config – optimizes for GH Pages static hosting
+site_dir: site  # Output folder (default; GH Pages serves from root of gh-pages branch)
+use_directory_urls: true  # Clean URLs (e.g., /kubernetes/ instead of /kubernetes/index.html)
+strict: true  # NEW: Enforce strict link checking during build/deploy (prevents 404s on GH Pages)
+
+# Theme: Material with GH Pages-friendly features
+theme:
+  name: material
+  # custom_dir: docs/overrides
+  favicon: images/favicon.ico
+  logo: images/favicon.svg
+  language: en
+  features:
+    - navigation.sections  # Grouped sections (your CNCF-style)
+    - navigation.tabs      # Top tabs
+    - navigation.top       # Back-to-top
+    - navigation.indexing  # NEW: Improves search indexing for GH Pages crawlers
+    - navigation.expand    # Auto-expand sections
+    - navigation.tabs.sticky  # Keeps tabs visible when scrolling
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - navigation.instant   # SPA-like loading (fast on GH Pages CDN)
+    - content.action.edit  # Ties to repo_uri
+    - content.action.view
+    - content.code.select
+    - search.suggest
+    - toc.follow
+    - search.highlight
+    - toc.integrate  
+    - search.share         # NEW: Share buttons work seamlessly on GH Pages
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  icon:
+    logo: material/book  # NEW: Simple icon for GH Pages favicon/meta
+
+# Markdown extensions – unchanged, but ensures TOC/links render correctly on GH Pages
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+      toc_depth: 6  # Up to H3 for detailed TOC
+      baselevel: 2
+  - footnotes
+  - def_list
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: docs
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.tabbed
+  - pymdownx.emoji
+  - pymdownx.tasklist
+  - pymdownx.mark
+  - pymdownx.arithmatex
+  - pymdownx.keys
+  - pymdownx.magiclink
+  - pymdownx.caret
+  - pymdownx.tilde
+  - pymdownx.smartsymbols
+  - codehilite
+  - md_in_html
+
+# Plugins – adds date plugin for freshness on GH Pages
+plugins:
+  - search
+  - autorefs
+  - awesome-pages  # Your hierarchical nav magic
+  - minify:
+      minify_html: true  # Compresses output for faster GH Pages loads
+  - git-revision-date-localized:
+      type: custom                  # Use custom formatting
+      custom_format: "%B %d, %Y %I:%M:%S %p"  # Your desired format (AM/PM)
+      enable_creation_date: false
+      fallback_to_build_date: false
+      timezone: Asia/Karachi
+      locale: en                    # Keeps English month/day names
+
+# Extra content – enhances GH Pages sharing/SEO
+extra:
+  social:
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/ibtisam-iq/
+    - icon: fontawesome/brands/github
+      link: https://github.com/ibtisam-iq
+    - icon: fontawesome/solid/globe
+      link: https://ibtisam-iq.com
+  generator: false  # Hides "Built with MkDocs" (clean look)
+  copyright: "© 2025 Ibtisam IQ. All rights reserved."  # NEW: Footer copyright
+
+extra_css:
+  - stylesheets/extra.css  # Loads your custom styles
+

@@ -1,0 +1,8 @@
+title: System Checks
+collapse: false  # Keep expanded for immediate visibility
+
+nav:
+  - Overview: index.md
+  - Preflight Check: preflight.md  # CHANGED BACK: sections: for nested groups (nav: is flat; this nests subpages under each)
+  - System Info: system-info.md
+  - Version Check: version-check.md

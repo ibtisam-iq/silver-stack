@@ -1,0 +1,6 @@
+title: Server Builds  # Or Tools
+collapse: false  # Keep expanded for immediate visibility
+nav:
+  - Overview: index.md
+  - JumpBox: jumpbox.md
+  - Jenkins Server: jenkins-server.md

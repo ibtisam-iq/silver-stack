@@ -1,0 +1,2 @@
+# This makes mdformat ignore --8<-- snippets forever
+validate = false

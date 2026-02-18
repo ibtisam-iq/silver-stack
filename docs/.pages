@@ -1,0 +1,13 @@
+collapse: true  # Root sections collapse (e.g., Kubernetes starts closed, but opens on click)
+
+# Exclude includes (from earlier)
+exclude:
+  - includes/
+
+sections:                    # CHANGED BACK: sections: for nested groups (nav: is flat; this nests subpages under each)
+  - Home: index.md  
+  - System Checks: system-checks/
+  - Kubernetes: kubernetes/  # Points to folder; awesome-pages pulls in its .pages for subs
+  - Server Builds: servers/
+  - Components: components/
+  - Services: services/
