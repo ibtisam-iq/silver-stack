@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+# Node.js
+node_modules/
+# Logs
+logs/
+*.log
+# Build output
+dist/
+build/
+# IDE files
+.vscode/
+.idea/
+# Temporary files
+tmp/
+# Coverage reports
+coverage/
+# Dependency directories
+vendor/
+# virtual environment
+.venv/
+# Python bytecode
+__pycache__/
+*.pyc
+# Backup files
+*.bak
+*.tmp
+# Ignore .env files
+.env
