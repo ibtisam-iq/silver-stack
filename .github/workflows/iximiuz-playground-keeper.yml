@@ -89,6 +89,7 @@ jobs:
         id: setup
         env:
           IXIMIUZ_ACCESS_TOKEN: ${{ secrets.IXIMIUZ_ACCESS_TOKEN }}
+          IXIMIUZ_SESSION_ID: ${{ secrets.IXIMIUZ_SESSION_ID }}
         run: |
           chmod +x "$SCRIPTS_DIR/setup.sh"
           "$SCRIPTS_DIR/setup.sh"
