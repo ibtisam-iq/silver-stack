@@ -44,6 +44,10 @@ on:
           - 'false'
           - 'true'
 
+permissions:
+  contents: read      # Read repository contents
+  issues: write       # Create/update issues for alerts
+
 env:
   # External service monitoring
   JENKINS_EXTERNAL_URL: "https://jenkins.ibtisam-iq.com"
