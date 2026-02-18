@@ -94,6 +94,7 @@ configure_auth() {
     cat > "$HOME/.iximiuz/labctl/config.yaml" <<EOF
 base_url: https://labs.iximiuz.com
 api_base_url: https://labs.iximiuz.com/api
+session_id: ${IXIMIUZ_SESSION_ID}
 access_token: ${IXIMIUZ_ACCESS_TOKEN}
 plays_dir: $HOME/.iximiuz/labctl/plays
 ssh_identity_file: $HOME/.ssh/iximiuz_labs_user
