@@ -32,7 +32,7 @@ readonly RED='\033[0;31m'
 readonly YELLOW='\033[1;33m'
 readonly NC='\033[0m'
 
-log_info() { echo -e "${GREEN}[INFO]${NC} $*"; }
+log_info()  { echo -e "${GREEN}[INFO]${NC} $*"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $*"; }
 
 # =============================================================================
@@ -46,7 +46,7 @@ discover_playgrounds() {
     local playground_list
     if ! playground_list=$(labctl playground list 2>&1); then
         log_error "Failed to retrieve playground list"
-        echo "$playground_list"
+        log_error "Raw output: $playground_list"
         return 1
     fi
 
@@ -58,20 +58,30 @@ discover_playgrounds() {
     local running_ids=""
     local total_count=0
 
-    # Parse playground list
+    # Parse playground list line by line
     while IFS= read -r line; do
-        # Skip header and empty lines
-        [[ "$line" =~ ^ID ]] && continue
+
+        # Skip header line (labctl outputs: "PLAYGROUND ID   NAME   CREATED   STATUS   LINK")
+        [[ "$line" =~ ^PLAYGROUND ]] && continue
+
+        # Skip empty lines
         [[ -z "$line" ]] && continue
 
+        # Extract fields
         local id state
-        id=$(echo "$line" | awk '{print $1}')
+        id=$(echo    "$line" | awk '{print $1}')
         state=$(echo "$line" | awk '{print $4}')
 
-        # Validate ID
-        [[ -z "$id" || "$id" == "ID" ]] && continue
+        # Skip if ID is empty or still the header word
+        [[ -z "$id" || "$id" == "PLAYGROUND" || "$id" == "ID" ]] && continue
 
-        ((total_count++))
+        # ---------------------------------------------------------------
+        # IMPORTANT: use $((x+1)) NOT ((x++)) here.
+        # Under set -e, ((x++)) exits with code 1 when x is 0 because the
+        # post-increment expression evaluates to 0 (falsy), killing the script.
+        # $((x+1)) is an expansion, not a command — it never sets exit code.
+        # ---------------------------------------------------------------
+        total_count=$(( total_count + 1 ))
 
         # Categorize by state
         case "$state" in
@@ -89,10 +99,10 @@ discover_playgrounds() {
         esac
     done <<< "$playground_list"
 
-    # Calculate counts
+    # Calculate counts using word count
     local stopped_count running_count
-    stopped_count=$(echo "$stopped_ids" | wc -w)
-    running_count=$(echo "$running_ids" | wc -w)
+    stopped_count=$(echo "$stopped_ids" | wc -w | tr -d ' ')
+    running_count=$(echo "$running_ids" | wc -w | tr -d ' ')
 
     # Log summary
     echo ""
@@ -113,10 +123,10 @@ discover_playgrounds() {
         echo "running_count=$running_count"
     } >> "$GITHUB_OUTPUT"
 
-    # Determine action needed
+    # Determine if action is needed
     if [[ -n "$stopped_ids" ]]; then
         echo "action_needed=true" >> "$GITHUB_OUTPUT"
-        log_info "⚠️ Action required: $stopped_count playgrounds need restart"
+        log_info "⚠️  Action required: $stopped_count playground(s) need restart"
     else
         echo "action_needed=false" >> "$GITHUB_OUTPUT"
         log_info "✅ All playgrounds operational"
