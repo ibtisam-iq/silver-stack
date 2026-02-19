@@ -144,26 +144,18 @@ EOF
 verify_token() {
     log_info "Verifying API token validity..."
 
-    # Test API call with VISIBLE error output for easier debugging
-    local output
-    output=$(labctl playground list 2>&1) && {
+    # Run with error output visible (not suppressed)
+    if labctl playground list > /dev/null 2>&1; then
         log_info "✅ API token is valid and authorized"
         return 0
     else
         log_error "API authentication failed. Raw output:"
         labctl playground list 2>&1 || true
-    } || {
-        log_error "API authentication failed"
-        log_error ""
-        log_error "Raw labctl output:"
-        echo "$output" | while read -r line; do
-            log_error "  $line"
-        done
         log_error ""
         log_error "Config contents (redacted):"
         grep -v "access_token\|session_id" "$HOME/.iximiuz/labctl/config.yaml" || true
         return 1
-    }
+    fi
 }
 
 # =============================================================================
