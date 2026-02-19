@@ -18,6 +18,7 @@
 #
 # OUTPUTS:
 #   - labctl installed to $HOME/.iximiuz/labctl/bin
+#   - labctl binary added to $GITHUB_PATH (available to ALL subsequent steps)
 #   - config.yaml created at $HOME/.iximiuz/labctl/config.yaml
 #   - Exit code: 0=success, 1=failure
 #
@@ -53,7 +54,8 @@ install_labctl() {
     fi
 
     # Verify installation
-    local labctl_path="$HOME/.iximiuz/labctl/bin/labctl"
+    local labctl_bin="$HOME/.iximiuz/labctl/bin"
+    local labctl_path="$labctl_bin/labctl"
     if [[ ! -x "$labctl_path" ]]; then
         log_error "labctl binary not found at: $labctl_path"
         return 1
@@ -62,10 +64,18 @@ install_labctl() {
     # Log version for debugging
     log_info "labctl version: $($labctl_path version)"
 
-    # Add to PATH for current script
-    export PATH="$HOME/.iximiuz/labctl/bin:$PATH"
+    # Add to PATH for the CURRENT step
+    export PATH="$labctl_bin:$PATH"
 
-    log_info "✅ labctl installed successfully"
+    # -----------------------------------------------------------------------
+    # CRITICAL: Persist PATH to GITHUB_PATH so ALL subsequent workflow steps
+    # (discover.sh, restart.sh, keep-alive.sh, etc.) can call `labctl` directly.
+    # Each GitHub Actions step runs in its own shell — export alone is not enough.
+    # -----------------------------------------------------------------------
+    echo "$labctl_bin" >> "$GITHUB_PATH"
+    log_info "labctl added to GITHUB_PATH (available to all subsequent steps)"
+
+    log_info "\u2705 labctl installed successfully"
 }
 
 # =============================================================================
@@ -83,29 +93,19 @@ configure_auth() {
     # ------------------------------------------------------------------
 
     # Validate IXIMIUZ_ACCESS_TOKEN
-    # Validate BOTH required variables explicitly
     if [[ -z "${IXIMIUZ_ACCESS_TOKEN:-}" ]]; then
         log_error "IXIMIUZ_ACCESS_TOKEN environment variable not set"
-        log_error "  → Add to GitHub Secrets: IXIMIUZ_ACCESS_TOKEN"
-        return 1
-    fi
-
-    if [[ -z "${IXIMIUZ_SESSION_ID:-}" ]]; then
-        log_error "IXIMIUZ_SESSION_ID environment variable not set"
-        log_error "  → Extract: cat ~/.iximiuz/labctl/config.yaml | grep session_id"
-        log_error "  → Add to GitHub Secrets: IXIMIUZ_SESSION_ID"
+        log_error "  \u2192 Run: labctl auth login"
+        log_error "  \u2192 Extract: cat ~/.iximiuz/labctl/config.yaml | grep access_token"
+        log_error "  \u2192 Add to GitHub Secrets: IXIMIUZ_ACCESS_TOKEN"
         return 1
     fi
 
     # Validate IXIMIUZ_SESSION_ID
     if [[ -z "${IXIMIUZ_SESSION_ID:-}" ]]; then
         log_error "IXIMIUZ_SESSION_ID environment variable not set"
-        log_error ""
-        log_error "Required action:"
-        log_error "  1. Extract: cat ~/.iximiuz/labctl/config.yaml | grep session_id"
-        log_error "  2. Add to GitHub Secrets:"
-        log_error "     Name:  IXIMIUZ_SESSION_ID"
-        log_error "     Value: <your-session-id>"
+        log_error "  \u2192 Extract: cat ~/.iximiuz/labctl/config.yaml | grep session_id"
+        log_error "  \u2192 Add to GitHub Secrets: IXIMIUZ_SESSION_ID"
         return 1
     fi
 
@@ -124,7 +124,7 @@ EOF
     # Secure permissions (owner read/write only)
     chmod 600 "$HOME/.iximiuz/labctl/config.yaml"
 
-    # Confirm config was written correctly (non-sensitive fields only)
+    # Confirm config was written (non-sensitive fields only)
     log_info "Config written ($(wc -l < "$HOME/.iximiuz/labctl/config.yaml") lines):"
     grep -v "access_token\|session_id" "$HOME/.iximiuz/labctl/config.yaml" | while read -r line; do
         log_info "  $line"
@@ -132,9 +132,7 @@ EOF
     log_info "  session_id: [REDACTED]"
     log_info "  access_token: [REDACTED]"
 
-    # Debug output to verify config was written
-    log_info "Config written: $(wc -l < "$HOME/.iximiuz/labctl/config.yaml") lines"
-    log_info "✅ Authentication configured"
+    log_info "\u2705 Authentication configured"
 }
 
 # =============================================================================
@@ -144,18 +142,27 @@ EOF
 verify_token() {
     log_info "Verifying API token validity..."
 
-    # Run with error output visible (not suppressed)
-    if labctl playground list > /dev/null 2>&1; then
-        log_info "✅ API token is valid and authorized"
+    local output
+    output=$(labctl playground list 2>&1) && {
+        log_info "\u2705 API token is valid and authorized"
         return 0
-    else
-        log_error "API authentication failed. Raw output:"
-        labctl playground list 2>&1 || true
+    } || {
+        log_error "API authentication failed"
         log_error ""
-        log_error "Config contents (redacted):"
-        grep -v "access_token\|session_id" "$HOME/.iximiuz/labctl/config.yaml" || true
+        log_error "Raw labctl output:"
+        echo "$output" | while read -r line; do
+            log_error "  $line"
+        done
+        log_error ""
+        log_error "Possible causes:"
+        log_error "  1. Token expired (30-day validity)"
+        log_error "  2. Token revoked or invalid"
+        log_error "  3. session_id / access_token mismatch"
+        log_error "  4. API connectivity issues"
+        log_error ""
+        log_error "Resolution: Renew token via 'labctl auth login'"
         return 1
-    fi
+    }
 }
 
 # =============================================================================
@@ -169,7 +176,7 @@ main() {
     configure_auth  || exit 1
     verify_token    || exit 1
 
-    log_info "✅ Setup completed successfully"
+    log_info "\u2705 Setup completed successfully"
 }
 
 main "$@"
