@@ -14,6 +14,7 @@
 #
 # INPUTS:
 #   - IXIMIUZ_ACCESS_TOKEN (environment variable, from GitHub Secrets)
+#   - IXIMIUZ_SESSION_ID   (environment variable, from GitHub Secrets)
 #
 # OUTPUTS:
 #   - labctl installed to $HOME/.iximiuz/labctl/bin
@@ -31,8 +32,8 @@ readonly YELLOW='\033[1;33m'
 readonly NC='\033[0m' # No Color
 
 # Logging functions
-log_info() { echo -e "${GREEN}[INFO]${NC} $*"; }
-log_warn() { echo -e "${YELLOW}[WARN]${NC} $*"; }
+log_info()  { echo -e "${GREEN}[INFO]${NC} $*"; }
+log_warn()  { echo -e "${YELLOW}[WARN]${NC} $*"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $*"; }
 
 # =============================================================================
@@ -74,7 +75,14 @@ install_labctl() {
 configure_auth() {
     log_info "Configuring API authentication..."
 
-    # Validate token is provided
+    # ------------------------------------------------------------------
+    # NOTE: Both checks MUST happen here — before the heredoc — because
+    # bash disables set -e inside any function called with "func || fallback".
+    # Without explicit guards, an unbound variable in the heredoc is silently
+    # skipped, writing a broken config.yaml, and verify_token fails later.
+    # ------------------------------------------------------------------
+
+    # Validate IXIMIUZ_ACCESS_TOKEN
     if [[ -z "${IXIMIUZ_ACCESS_TOKEN:-}" ]]; then
         log_error "IXIMIUZ_ACCESS_TOKEN environment variable not set"
         log_error ""
@@ -82,26 +90,45 @@ configure_auth() {
         log_error "  1. Run: labctl auth login"
         log_error "  2. Extract: cat ~/.iximiuz/labctl/config.yaml | grep access_token"
         log_error "  3. Add to GitHub Secrets:"
-        log_error "     Name: IXIMIUZ_ACCESS_TOKEN"
+        log_error "     Name:  IXIMIUZ_ACCESS_TOKEN"
         log_error "     Value: <your-token>"
+        return 1
+    fi
+
+    # Validate IXIMIUZ_SESSION_ID
+    if [[ -z "${IXIMIUZ_SESSION_ID:-}" ]]; then
+        log_error "IXIMIUZ_SESSION_ID environment variable not set"
+        log_error ""
+        log_error "Required action:"
+        log_error "  1. Extract: cat ~/.iximiuz/labctl/config.yaml | grep session_id"
+        log_error "  2. Add to GitHub Secrets:"
+        log_error "     Name:  IXIMIUZ_SESSION_ID"
+        log_error "     Value: <your-session-id>"
         return 1
     fi
 
     # Create config directory
     mkdir -p "$HOME/.iximiuz/labctl"
 
-    # Generate config file
+    # Generate config file (all fields required by labctl)
     cat > "$HOME/.iximiuz/labctl/config.yaml" <<EOF
 base_url: https://labs.iximiuz.com
 api_base_url: https://labs.iximiuz.com/api
 session_id: ${IXIMIUZ_SESSION_ID}
 access_token: ${IXIMIUZ_ACCESS_TOKEN}
 plays_dir: $HOME/.iximiuz/labctl/plays
-# ssh_identity_file: $HOME/.ssh/iximiuz_labs_user
 EOF
 
     # Secure permissions (owner read/write only)
     chmod 600 "$HOME/.iximiuz/labctl/config.yaml"
+
+    # Confirm config was written correctly (non-sensitive fields only)
+    log_info "Config written ($(wc -l < "$HOME/.iximiuz/labctl/config.yaml") lines):"
+    grep -v "access_token\|session_id" "$HOME/.iximiuz/labctl/config.yaml" | while read -r line; do
+        log_info "  $line"
+    done
+    log_info "  session_id: [REDACTED]"
+    log_info "  access_token: [REDACTED]"
 
     log_info "✅ Authentication configured"
 }
@@ -113,21 +140,28 @@ EOF
 verify_token() {
     log_info "Verifying API token validity..."
 
-    # Test API call (minimal operation)
-    if labctl playground list &>/dev/null; then
+    # Test API call with VISIBLE error output for easier debugging
+    local output
+    output=$(labctl playground list 2>&1) && {
         log_info "✅ API token is valid and authorized"
         return 0
-    else
+    } || {
         log_error "API authentication failed"
+        log_error ""
+        log_error "Raw labctl output:"
+        echo "$output" | while read -r line; do
+            log_error "  $line"
+        done
         log_error ""
         log_error "Possible causes:"
         log_error "  1. Token expired (30-day validity)"
         log_error "  2. Token revoked or invalid"
-        log_error "  3. API connectivity issues"
+        log_error "  3. session_id / access_token mismatch"
+        log_error "  4. API connectivity issues"
         log_error ""
         log_error "Resolution: Renew token via 'labctl auth login'"
         return 1
-    fi
+    }
 }
 
 # =============================================================================
@@ -137,9 +171,9 @@ verify_token() {
 main() {
     log_info "Starting environment setup..."
 
-    install_labctl || exit 1
-    configure_auth || exit 1
-    verify_token || exit 1
+    install_labctl  || exit 1
+    configure_auth  || exit 1
+    verify_token    || exit 1
 
     log_info "✅ Setup completed successfully"
 }
