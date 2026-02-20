@@ -1,6 +1,6 @@
 # 🥈 SilverStack
 
-> Production-grade DevOps toolkit by **Muhammad Ibtisam**
+> Production-grade DevOps toolkit - The place where working knowledge becomes reusable infrastructure
 
 A comprehensive collection of production-ready configurations, automation scripts, and troubleshooting knowledge accumulated through real-world DevOps practice.
 
