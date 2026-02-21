@@ -56,7 +56,7 @@ My work follows a consistent flow:
 
 1. Understanding and deep execution → **[Knowledge Base](https://nectar.ibtisam-iq.com/)**
 2. Reproducible, trusted configurations → **SilverStack**
-3. Distilled practical reasoning → **[Blogs](https://blogs.ibtisam-iq.com/)**
+3. Distilled practical reasoning → **[Blog](https://blog.ibtisam-iq.com/)**
 4. Complete running environments → **[Projects](https://projects.ibtisam-iq.com/)**
 
 This repository represents the reproducibility layer in that system.
@@ -88,7 +88,7 @@ curl -sL https://raw.githubusercontent.com/ibtisam-iq/silver-stack/main/infra-bo
 ## 📚 Related Platforms
 
 * 📖 Knowledge Base → [https://nectar.ibtisam-iq.com](https://nectar.ibtisam-iq.com)
-* 🧠 Engineering Blogs → [https://blogs.ibtisam-iq.com](https://blog.ibtisam-iq.com)
+* 🧠 Engineering Blogs → [https://blog.ibtisam-iq.com](https://blog.ibtisam-iq.com)
 * 🏗 Portfolio → [https://ibtisam-iq.com](https://ibtisam-iq.com)
 
 ## 🧭 Why This Exists
