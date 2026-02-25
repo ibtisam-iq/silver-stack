@@ -63,7 +63,7 @@ build-rootfs-%: examiner examinerctl
 		--build-arg ARKADE_BIN_DIR=/usr/local/bin \
 		--build-arg ALMALINUX_VERSION=9 \
 		--build-arg ALPINE_VERSION=3 \
-		--build-arg BTOP_VERSION=1.4.6 \
+		--build-arg BTOP_VERSION=1.4.4 \
 		--build-arg CFSSL_VERSION=1.6.5 \
 		--build-arg DAGGER_VERSION=0.18.12 \
 		--build-arg DEBIAN_STABLE_VERSION=bookworm \
