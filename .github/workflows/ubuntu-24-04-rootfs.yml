@@ -6,16 +6,16 @@ on:
       - main
     paths:
       - 'iximiuz/rootfs/ubuntu/**'
-      - '.github/workflows/ubuntu-24.04-rootfs.yml'
+      - '.github/workflows/ubuntu-24-04-rootfs.yml'
   pull_request:
     paths:
       - 'iximiuz/rootfs/ubuntu/**'
-      - '.github/workflows/ubuntu-24.04-rootfs.yml'
+      - '.github/workflows/ubuntu-24-04-rootfs.yml'
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/ubuntu-24.04-rootfs
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/ubuntu-24-04-rootfs
 
 jobs:
   build-and-push:
