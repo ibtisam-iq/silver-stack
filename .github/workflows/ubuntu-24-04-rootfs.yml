@@ -55,6 +55,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/ibtisam-iq/silver-stack
             org.opencontainers.image.vendor=Ibtisam IQ
             org.opencontainers.image.authors=Muhammad Ibtisam <contact@ibtisam-iq.com>
+            org.opencontainers.image.documentation="https://blog.ibtisam-iq.com"
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=sha-,format=short
