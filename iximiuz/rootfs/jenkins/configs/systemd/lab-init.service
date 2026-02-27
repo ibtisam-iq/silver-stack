@@ -1,0 +1,15 @@
+[Unit]
+Description=Jenkins Lab Runtime Initialization
+Documentation=https://github.com/ibtisam-iq/silver-stack
+Before=ssh.service nginx.service jenkins.service
+After=local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/jenkins-scripts/lab-init.sh
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
