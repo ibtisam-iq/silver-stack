@@ -1,0 +1,9 @@
+# Sudo permissions for SonarQube daemon account
+sonar ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart sonarqube, \
+                             /usr/bin/systemctl stop sonarqube, \
+                             /usr/bin/systemctl start sonarqube, \
+                             /usr/bin/systemctl status sonarqube, \
+                             /usr/bin/systemctl restart postgresql, \
+                             /usr/bin/systemctl status postgresql, \
+                             /usr/bin/systemctl reload nginx, \
+                             /usr/bin/journalctl

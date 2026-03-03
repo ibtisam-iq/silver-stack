@@ -1,0 +1,15 @@
+[Unit]
+Description=SonarQube Lab Runtime Initialization
+Documentation=https://ibtisam-iq.com/
+Before=ssh.service nginx.service postgresql.service sonarqube.service
+After=local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/sonarqube-scripts/lab-init.sh
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

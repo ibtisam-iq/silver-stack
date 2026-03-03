@@ -1,0 +1,23 @@
+[Unit]
+Description=SilverStack SonarQube Server
+Documentation=https://docs.sonarsource.com/sonarqube/
+Requires=network.target postgresql.service lab-init.service
+After=network.target postgresql.service lab-init.service
+
+[Service]
+Type=simple
+User=sonar
+Group=sonar
+WorkingDirectory=/opt/sonarqube
+ExecStart=/opt/sonarqube/bin/linux-x86-64/sonar.sh console
+ExecStop=/opt/sonarqube/bin/linux-x86-64/sonar.sh stop
+Restart=always
+RestartSec=10
+LimitNOFILE=131072
+LimitNPROC=8192
+StandardOutput=journal
+StandardError=journal
+OOMScoreAdjust=-900
+
+[Install]
+WantedBy=multi-user.target
