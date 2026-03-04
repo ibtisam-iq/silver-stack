@@ -3,7 +3,7 @@
 # Nexus Repository Manager Custom Rootfs
 # Base:    ubuntu-24-04-rootfs (systemd-enabled)
 # Java:    OpenJDK 21
-# Nexus:   3 (latest OSS)
+# Nexus:   3 (latest Community Edition)
 # Nginx:   Reverse proxy pre-configured
 
 FROM ghcr.io/ibtisam-iq/ubuntu-24-04-rootfs:latest
@@ -24,28 +24,11 @@ ENV DEBIAN_FRONTEND=noninteractive \
     NEXUS_PORT=${NEXUS_PORT:-8081} \
     JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 \
     PATH="/usr/lib/jvm/java-21-openjdk-amd64/bin:${PATH}" \
-    TZ=UTC \
-    LANG=en_US.UTF-8 \
-    LC_ALL=en_US.UTF-8
-
-# Install base packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        nginx \
-        locales \
-        unzip \
-        curl \
-        ca-certificates \
-        && \
-    locale-gen en_US.UTF-8 && \
-    update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    TZ=UTC
 
 # Copy configuration files
 COPY configs/nexus.service /etc/systemd/system/nexus.service
 COPY configs/sudoers.d/nexus-user /etc/sudoers.d/nexus-user
-COPY configs/profile.d/nexus-env.sh /etc/profile.d/nexus-env.sh
 COPY configs/systemd/lab-init.service /etc/systemd/system/lab-init.service
 
 # Copy and permission scripts
@@ -55,12 +38,12 @@ RUN chmod +x /opt/nexus-scripts/*.sh
 # Install Java and Nexus
 RUN /opt/nexus-scripts/install-nexus.sh ${NEXUS_PORT}
 
+# Install and configure Nginx reverse proxy
+RUN /opt/sonarqube-scripts/configure-nginx.sh
+
 # Substitute port placeholder in configs
 COPY configs/nginx.conf /etc/nginx/sites-available/nexus
 RUN sed -i "s/__NEXUS_PORT__/${NEXUS_PORT}/g" /etc/nginx/sites-available/nexus
-
-# Configure Nginx reverse proxy
-RUN /opt/nexus-scripts/configure-nginx.sh
 
 # Enable services for systemd boot
 RUN systemctl enable lab-init && \

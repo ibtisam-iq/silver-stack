@@ -28,6 +28,11 @@ apt-get install -y --no-install-recommends cloudflared
 echo "Verifying installation..."
 cloudflared --version
 
+echo "Cleaning up apt cache and temporary files..."
+apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    apt-get autoremove -y
+
 echo ""
 echo "✓ cloudflared installed successfully"
 echo "  Binary  : $(which cloudflared)"
