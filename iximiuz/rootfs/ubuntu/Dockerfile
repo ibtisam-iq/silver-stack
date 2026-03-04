@@ -106,6 +106,11 @@ COPY examiner* /usr/local/bin
 RUN --mount=type=bind,source=scripts,target=/tmp/scripts /tmp/scripts/set-up-systemd-examiner-service.sh
 
 
+# System-wide shell prompt (inherited by all images built on this base)
+COPY configs/profile.d/00-prompt.sh /etc/profile.d/00-prompt.sh
+RUN chmod +x /etc/profile.d/00-prompt.sh
+
+
 # System-wide user tools.
 RUN --mount=type=bind,source=scripts,target=/tmp/scripts /tmp/scripts/get-arkade.sh
 RUN --mount=type=bind,source=scripts,target=/tmp/scripts /tmp/scripts/get-common-tools.sh
