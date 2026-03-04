@@ -9,6 +9,7 @@ set -euo pipefail
 # Author: Muhammad Ibtisam Iqbal
 #######################################################################
 
+echo "Installing Nginx..."
 apt-get update
 apt-get install -y --no-install-recommends nginx
 
