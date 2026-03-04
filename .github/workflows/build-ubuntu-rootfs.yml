@@ -75,6 +75,12 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            USER=ibtisam
+            ARKADE_BIN_DIR=/usr/local/bin
+            BTOP_VERSION=1.4.4
+            CFSSL_VERSION=1.6.5
+            WEBSOCAT_VERSION=1.14.1
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
