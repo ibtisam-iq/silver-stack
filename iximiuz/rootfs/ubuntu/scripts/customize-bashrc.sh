@@ -1,3 +1,4 @@
+#!/bin/bash
 # Make all original lines with "bash_completion" in them to use
 # a fake "bash_completion_orig" location to avoid double sourcing.
 sed -i 's/bash_completion/bash_completion_orig/g' $HOME/.bashrc
