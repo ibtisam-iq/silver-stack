@@ -1,4 +1,4 @@
-name: Build Jenkins LTS Rootfs
+name: Build Jenkins Rootfs
 
 on:
   push:
@@ -6,20 +6,22 @@ on:
       - main
     paths:
       - 'iximiuz/rootfs/jenkins/**'
-      - '.github/workflows/jenkins-lts-rootfs.yml'
+      - '!iximiuz/rootfs/jenkins/README.md'
+      - '.github/workflows/build-jenkins-rootfs.yml'
   pull_request:
     paths:
       - 'iximiuz/rootfs/jenkins/**'
-      - '.github/workflows/jenkins-lts-rootfs.yml'
+      - '!iximiuz/rootfs/jenkins/README.md'
+      - '.github/workflows/build-jenkins-rootfs.yml'
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/jenkins-lts-rootfs
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/jenkins-rootfs
 
 jobs:
   build-and-push:
-    name: Build & Push Jenkins LTS Rootfs
+    name: Build & Push Jenkins Rootfs
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -51,14 +53,16 @@ jobs:
           images: ${{ env.IMAGE_NAME }}
           labels: |
             org.opencontainers.image.licenses=MIT
-            org.opencontainers.image.base.name="ghcr.io/ibtisam-iq/ubuntu-24-04-rootfs:latest"
+            org.opencontainers.image.base.name=ghcr.io/ibtisam-iq/ubuntu-24-04-rootfs:latest
             org.opencontainers.image.url=https://github.com/ibtisam-iq/silver-stack
             org.opencontainers.image.source=https://github.com/ibtisam-iq/silver-stack
             org.opencontainers.image.vendor=Ibtisam IQ
-            org.opencontainers.image.documentation="https://blog.ibtisam-iq.com"
+            org.opencontainers.image.documentation=https://blog.ibtisam-iq.com
             org.opencontainers.image.authors=Muhammad Ibtisam <contact@ibtisam-iq.com>
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=2.541.2-lts,enable={{is_default_branch}}
+            type=raw,value=lts,enable={{is_default_branch}}
             type=sha,prefix=sha-,format=short
             type=raw,value={{date 'YYYY-MM-DD'}}
 
@@ -69,8 +73,8 @@ jobs:
           context: ./iximiuz/rootfs/jenkins
           file: ./iximiuz/rootfs/jenkins/Dockerfile
           platforms: linux/amd64,linux/arm64
-          load: false    # Don't load the image into the local Docker cache since we're pushing it
-          push: ${{ github.event_name != 'pull_request' }} # Only push on non-PR events
+          load: false
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
