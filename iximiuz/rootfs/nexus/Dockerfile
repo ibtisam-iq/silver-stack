@@ -38,12 +38,12 @@ RUN chmod +x /opt/nexus-scripts/*.sh
 # Install Java and Nexus
 RUN /opt/nexus-scripts/install-nexus.sh ${NEXUS_PORT}
 
-# Install and configure Nginx reverse proxy
-RUN /opt/nexus-scripts/configure-nginx.sh
-
 # Substitute port placeholder in configs
 COPY configs/nginx.conf /etc/nginx/sites-available/nexus
 RUN sed -i "s/__NEXUS_PORT__/${NEXUS_PORT}/g" /etc/nginx/sites-available/nexus
+
+# Install and configure Nginx reverse proxy
+RUN /opt/nexus-scripts/configure-nginx.sh
 
 # Enable services for systemd boot
 RUN systemctl enable lab-init && \
