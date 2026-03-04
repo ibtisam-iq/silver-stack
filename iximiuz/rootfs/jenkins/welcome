@@ -1,6 +1,6 @@
 Welcome to SilverStack Jenkins Lab! 🚀
 
-Jenkins is running internally at http://localhost:8080
+Jenkins is running internally at http://localhost:<JENKINS_PORT>
 Nginx reverse proxy is listening on port 80 (internal)
 
 Pre-installed tools:
@@ -13,13 +13,13 @@ Pre-installed tools:
 
 To expose Jenkins publicly via Cloudflare Tunnel:
 
-  1. one.dash.cloudflare.com → Zero Trust → Networks → Connectors
+  1. one.dash.cloudflare.com → Networks → Connectors
   2. Create tunnel → name it (e.g. jenkins-lab) → choose Cloudflared
   3. Copy & run the install command shown:
        sudo cloudflared service install <token>
   4. Route Traffic → Add public hostname:
        Subdomain: jenkins   Domain: yourdomain.com
-       Service:   HTTP      URL:    localhost:8080
+       Service:   HTTP      URL:    localhost:<JENKINS_PORT>
   5. Jenkins is now live at https://jenkins.yourdomain.com
 
 Quick commands:

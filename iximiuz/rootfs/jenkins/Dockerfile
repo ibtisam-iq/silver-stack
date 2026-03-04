@@ -16,8 +16,7 @@ ARG JENKINS_PORT
 ARG BUILD_DATE
 ARG VCS_REF
 
-LABEL org.opencontainers.image.title="Jenkins LTS Rootfs" \
-      org.opencontainers.image.created="${BUILD_DATE}" \
+LABEL org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.revision="${VCS_REF}"
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -25,27 +24,16 @@ ENV DEBIAN_FRONTEND=noninteractive \
     JENKINS_PORT=${JENKINS_PORT} \
     JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 \
     PATH="/usr/lib/jvm/java-21-openjdk-amd64/bin:${PATH}" \
-    TZ=UTC \
-    LANG=en_US.UTF-8 \
-    LC_ALL=en_US.UTF-8
-
-# Install Jenkins-specific packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        # Web server
-        nginx \
-        # Utilities for Jenkins
-        fontconfig \
-        gnupg \
-        && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    TZ=UTC
 
 # Copy configuration files
 COPY configs/nginx.conf /etc/nginx/sites-available/jenkins
+RUN sed -i "s/__JENKINS_PORT__/${JENKINS_PORT}/g" /etc/nginx/sites-available/jenkins
+
 COPY configs/jenkins.service /etc/systemd/system/jenkins.service
+RUN sed -i "s/__JENKINS_PORT__/${JENKINS_PORT}/g" /etc/systemd/system/jenkins.service
+
 COPY configs/sudoers.d/jenkins-user /etc/sudoers.d/jenkins-user
-COPY configs/profile.d/jenkins-env.sh /etc/profile.d/jenkins-env.sh
 COPY configs/systemd/lab-init.service /etc/systemd/system/lab-init.service
 
 # Copy and permission installation scripts

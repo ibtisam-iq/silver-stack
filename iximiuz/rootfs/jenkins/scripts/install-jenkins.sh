@@ -24,7 +24,7 @@ fi
 
 echo "Installing Java 21..."
 apt-get update
-apt-get install -y --no-install-recommends openjdk-21-jdk
+apt-get install -y --no-install-recommends fontconfig openjdk-21-jdk
 java -version
 
 echo "Adding Jenkins GPG key..."

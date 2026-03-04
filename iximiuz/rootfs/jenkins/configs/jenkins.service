@@ -7,7 +7,7 @@ After=network.target
 [Service]
 Type=notify
 NotifyAccess=main
-ExecStart=/usr/bin/jenkins
+ExecStart=/usr/bin/jenkins --httpPort=__JENKINS_PORT__
 Restart=always
 RestartSec=10
 SuccessExitStatus=143
