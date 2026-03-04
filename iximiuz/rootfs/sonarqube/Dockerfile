@@ -24,29 +24,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     SONARQUBE_PORT=${SONARQUBE_PORT:-9000} \
     JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 \
     PATH="/usr/lib/jvm/java-21-openjdk-amd64/bin:${PATH}" \
-    TZ=UTC \
-    LANG=en_US.UTF-8 \
-    LC_ALL=en_US.UTF-8
-
-# Install SonarQube-specific packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        curl \
-        gnupg \
-        lsb-release \
-        ca-certificates \
-        # Web server
-        nginx \
-        # Locale support
-        locales \
-        # Utilities
-        unzip \
-        && \
-    # Generate en_US.UTF-8 locale so LANG/LC_ALL ENV vars are valid at runtime
-    locale-gen en_US.UTF-8 && \
-    update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    TZ=UTC
 
 # Copy and permission installation scripts
 COPY scripts/ /opt/sonarqube-scripts/
@@ -55,7 +33,6 @@ RUN chmod +x /opt/sonarqube-scripts/*.sh
 # Copy configuration files
 COPY configs/sonarqube.service /etc/systemd/system/sonarqube.service
 COPY configs/sudoers.d/sonarqube-user /etc/sudoers.d/sonarqube-user
-COPY configs/profile.d/sonarqube-env.sh /etc/profile.d/sonarqube-env.sh
 COPY configs/systemd/lab-init.service /etc/systemd/system/lab-init.service
 
 # Install PostgreSQL and configure

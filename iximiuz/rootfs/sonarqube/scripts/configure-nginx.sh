@@ -9,6 +9,9 @@ set -euo pipefail
 # Author: Muhammad Ibtisam Iqbal
 #######################################################################
 
+apt-get update
+apt-get install -y --no-install-recommends nginx
+
 echo "Configuring Nginx for SonarQube..."
 
 if [ ! -f /etc/nginx/sites-available/sonarqube ]; then

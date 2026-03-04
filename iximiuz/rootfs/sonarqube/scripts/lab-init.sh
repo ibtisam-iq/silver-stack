@@ -105,8 +105,6 @@ if [ -d /opt/sonarqube ]; then
     log "✓ SonarQube home permissions set"
 fi
 
-# sonar.properties already copied at build time
-
 # ──────────────────────────────────────────────────────────────────────
 # Elasticsearch: system limits
 # ──────────────────────────────────────────────────────────────────────
