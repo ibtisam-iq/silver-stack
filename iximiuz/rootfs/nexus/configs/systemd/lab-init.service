@@ -1,0 +1,15 @@
+[Unit]
+Description=Nexus Lab Runtime Initialization
+Documentation=https://ibtisam-iq.com
+Before=ssh.service nginx.service nexus.service
+After=local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/nexus-scripts/lab-init.sh
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

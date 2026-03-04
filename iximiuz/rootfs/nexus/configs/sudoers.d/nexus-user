@@ -1,0 +1,7 @@
+# Sudo permissions for Nexus daemon account
+nexus ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart nexus, \
+                           /usr/bin/systemctl stop nexus, \
+                           /usr/bin/systemctl start nexus, \
+                           /usr/bin/systemctl status nexus, \
+                           /usr/bin/systemctl reload nginx, \
+                           /usr/bin/journalctl

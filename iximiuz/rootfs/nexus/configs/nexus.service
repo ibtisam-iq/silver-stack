@@ -1,0 +1,23 @@
+[Unit]
+Description=SilverStack Nexus Repository Manager
+Documentation=https://help.sonatype.com/en/sonatype-nexus-repository.html
+Requires=network.target
+After=network.target
+
+[Service]
+Type=simple
+User=nexus
+Group=nexus
+WorkingDirectory=/opt/nexus
+ExecStart=/opt/nexus/bin/nexus run
+ExecStop=/opt/nexus/bin/nexus stop
+Restart=always
+RestartSec=10
+LimitNOFILE=65536
+LimitNPROC=8192
+StandardOutput=journal
+StandardError=journal
+OOMScoreAdjust=-900
+
+[Install]
+WantedBy=multi-user.target

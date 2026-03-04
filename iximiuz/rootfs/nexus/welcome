@@ -1,0 +1,30 @@
+Welcome to SilverStack Nexus Repository Manager Lab! 📦
+
+Nexus is running internally at http://localhost:8081
+Nginx reverse proxy is listening on port 80 (internal)
+
+Pre-installed tools:
+- vim, fzf, ripgrep   Command-line editing and searching
+- jq, yq, fx          JSON and YAML viewers and processors
+- curl, socat         Networking toolkit
+- arkade              Installer for additional tools
+- cloudflared         Cloudflare Tunnel for public access
+- java 21             Modern LTS Java runtime
+
+Default Nexus credentials:
+  Username: admin
+  Password: cat /opt/sonatype-work/nexus3/admin.password  (first login only)
+
+To expose Nexus publicly via Cloudflare Tunnel:
+  1. one.dash.cloudflare.com → Zero Trust → Networks → Connectors
+  2. Create tunnel → name it (e.g. nexus-lab) → choose Cloudflared
+  3. Copy & run the install command shown:
+       sudo cloudflared service install <token>
+  4. Route Traffic → Add public hostname:
+       Subdomain: nexus   Domain: yourdomain.com
+       Service:   HTTP    URL:    localhost:8081
+  5. Nexus is now live at https://nexus.yourdomain.com
+
+Quick commands:
+  nexus-status  nexus-logs  nexus-restart  nexus-start  nexus-stop
+  nginx-status  nginx-logs  nginx-reload
