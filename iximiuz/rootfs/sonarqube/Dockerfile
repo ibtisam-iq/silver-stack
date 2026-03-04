@@ -46,12 +46,12 @@ COPY configs/sonar.properties /opt/sonarqube/conf/sonar.properties
 RUN sed -i "s/__SONARQUBE_PORT__/${SONARQUBE_PORT}/g" /opt/sonarqube/conf/sonar.properties && \
     chown sonar:sonar /opt/sonarqube/conf/sonar.properties
 
+# Install and configure Nginx reverse proxy
+RUN /opt/sonarqube-scripts/configure-nginx.sh
+
 # Copy nginx.conf and substitute port placeholder
 COPY configs/nginx.conf /etc/nginx/sites-available/sonarqube
 RUN sed -i "s/__SONARQUBE_PORT__/${SONARQUBE_PORT}/g" /etc/nginx/sites-available/sonarqube
-
-# Install and configure Nginx reverse proxy
-RUN /opt/sonarqube-scripts/configure-nginx.sh
 
 # Enable services for systemd boot
 RUN systemctl enable lab-init && \

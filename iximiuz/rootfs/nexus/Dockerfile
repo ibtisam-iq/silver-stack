@@ -27,6 +27,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     TZ=UTC
 
 # Copy configuration files
+COPY configs/nginx.conf /etc/nginx/sites-available/nexus
+RUN sed -i "s/__NEXUS_PORT__/${NEXUS_PORT}/g" /etc/nginx/sites-available/nexus
+
 COPY configs/nexus.service /etc/systemd/system/nexus.service
 COPY configs/sudoers.d/nexus-user /etc/sudoers.d/nexus-user
 COPY configs/systemd/lab-init.service /etc/systemd/system/lab-init.service
@@ -37,10 +40,6 @@ RUN chmod +x /opt/nexus-scripts/*.sh
 
 # Install Java and Nexus
 RUN /opt/nexus-scripts/install-nexus.sh ${NEXUS_PORT}
-
-# Substitute port placeholder in configs
-COPY configs/nginx.conf /etc/nginx/sites-available/nexus
-RUN sed -i "s/__NEXUS_PORT__/${NEXUS_PORT}/g" /etc/nginx/sites-available/nexus
 
 # Install and configure Nginx reverse proxy
 RUN /opt/nexus-scripts/configure-nginx.sh

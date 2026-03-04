@@ -1,12 +1,10 @@
 Welcome to SilverStack SonarQube Lab! 🔍
 
-SonarQube is running internally at http://localhost:9000
+SonarQube is running internally at http://localhost:<SONARQUBE_PORT>
 Nginx reverse proxy is listening on port 80 (internal)
 PostgreSQL database is running on port 5432 (internal)
 
 Pre-installed tools:
-- vim, fzf, ripgrep   Command-line editing and searching
-- jq, yq, fx          JSON and YAML viewers and processors
 - curl, socat         Networking toolkit
 - arkade              Installer for additional tools
 - cloudflared         Cloudflare Tunnel for public access
@@ -15,7 +13,7 @@ Pre-installed tools:
 
 Default SonarQube credentials:
   Username: admin
-  Password: admin (change on first login)
+  Password: admin 
 
 To expose SonarQube publicly via Cloudflare Tunnel:
 
@@ -25,7 +23,7 @@ To expose SonarQube publicly via Cloudflare Tunnel:
        sudo cloudflared service install <token>
   4. Route Traffic → Add public hostname:
        Subdomain: sonar   Domain: yourdomain.com
-       Service:   HTTP    URL:    localhost:9000
+       Service:   HTTP    URL:    localhost:<SONARQUBE_PORT>
   5. SonarQube is now live at https://sonar.yourdomain.com
 
 Quick commands:
