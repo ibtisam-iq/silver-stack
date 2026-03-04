@@ -39,7 +39,7 @@ RUN chmod +x /opt/nexus-scripts/*.sh
 RUN /opt/nexus-scripts/install-nexus.sh ${NEXUS_PORT}
 
 # Install and configure Nginx reverse proxy
-RUN /opt/sonarqube-scripts/configure-nginx.sh
+RUN /opt/nexus-scripts/configure-nginx.sh
 
 # Substitute port placeholder in configs
 COPY configs/nginx.conf /etc/nginx/sites-available/nexus
