@@ -4,7 +4,7 @@ set -euo pipefail
 #######################################################################
 # Nexus Repository Manager Installation Script
 #
-# Installs OpenJDK 21 and Nexus OSS 3.89.1.
+# Installs OpenJDK 21 and Nexus CE 3.89.1
 #
 # Arguments:
 #   PORT - Nexus HTTP port (default: 8081)
