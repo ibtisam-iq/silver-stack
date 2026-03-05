@@ -5,15 +5,13 @@ Nginx reverse proxy is listening on port 80 (internal)
 PostgreSQL database is running on port 5432 (internal)
 
 Tools:
-
 - cloudflared         Cloudflare Tunnel for public access
 - java 21             Modern LTS Java runtime
 - postgresql 18       Production-grade database
 - arkade  jq  yq  fx  task  just  fzf  btop  cfssl  ripgrep
 
 Default SonarQube credentials:
-  Username: admin
-  Password: admin
+  Username: admin      Password: admin
 
 To expose SonarQube publicly via Cloudflare Tunnel:
 
@@ -28,5 +26,4 @@ To expose SonarQube publicly via Cloudflare Tunnel:
 
 Quick commands:
   sonar-status  sonar-logs  sonar-restart  sonar-start  sonar-stop
-  pg-status     pg-logs     pg-restart
-  nginx-status  nginx-logs  nginx-reload
+  pg-status     pg-logs     pg-restart     nginx-status nginx-logs  nginx-reload
