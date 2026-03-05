@@ -42,7 +42,7 @@ nexus/
 
 | ARG | Default | Description |
 |---|---|---|
-| `USER` | — | Interactive user (default: `ibtisam`) |
+| `USER` | ibtisam | Interactive user |
 | `NEXUS_PORT` | `8081` | Nexus HTTP port — substituted in service, nginx, welcome |
 
 ## Port Substitution

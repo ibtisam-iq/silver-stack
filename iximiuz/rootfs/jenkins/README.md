@@ -42,7 +42,7 @@ jenkins/
 
 | ARG | Default | Description |
 |---|---|---|
-| `USER` | — | Interactive user (default: `ibtisam`) |
+| `USER` | ibtisam | Interactive user |
 | `JENKINS_PORT` | `8080` | Jenkins HTTP port — substituted in service, nginx, welcome |
 
 ## Port Substitution

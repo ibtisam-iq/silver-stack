@@ -57,11 +57,11 @@ ubuntu/
 
 | ARG | Default | Description |
 |---|---|---|
-| `USER` | — | Non-root interactive user to create |
-| `BTOP_VERSION` | — | btop release version |
-| `CFSSL_VERSION` | — | cfssl release version |
-| `WEBSOCAT_VERSION` | — | websocat release version |
-| `ARKADE_BIN_DIR` | — | Installation path for arkade |
+| `USER` | ibtisam | Non-root interactive user to create |
+| `BTOP_VERSION` | 1.4.4 | btop release version |
+| `CFSSL_VERSION` | 1.6.5 | cfssl release version |
+| `WEBSOCAT_VERSION` | 1.14.1 | websocat release version |
+| `ARKADE_BIN_DIR` | /usr/local/bin | Installation path for arkade |
 
 ## Published Image
 

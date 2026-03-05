@@ -45,7 +45,7 @@ sonarqube/
 
 | ARG | Default | Description |
 |---|---|---|
-| `USER` | — | Interactive user (default: `ibtisam`) |
+| `USER` | ibtisam | Interactive user |
 | `SONARQUBE_PORT` | `9000` | SonarQube HTTP port — substituted in sonar.properties, nginx, welcome |
 
 ## Port Substitution
