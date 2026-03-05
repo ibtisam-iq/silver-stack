@@ -12,7 +12,7 @@ This is your entry point. SSH into each server and follow the
 Cloudflare setup steps on its welcome page to go live.
 
   ssh jenkins-server      then follow steps → jenkins.yourdomain.com
-  ssh sonarqube-server    then follow steps → sonarqube.yourdomain.com
+  ssh sonarqube-server    then follow steps → sonar.yourdomain.com
   ssh nexus-server        then follow steps → nexus.yourdomain.com
 
 Tools: arkade  jq  yq  fx  task  just  fzf  btop  cfssl  ripgrep  code-server

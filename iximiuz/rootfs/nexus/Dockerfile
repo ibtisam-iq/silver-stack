@@ -60,6 +60,7 @@ USER $USER
 ENV HOME=/home/$USER
 
 COPY welcome $HOME/.welcome
+RUN sed -i "s/__NEXUS_PORT__/${NEXUS_PORT}/g" $HOME/.welcome
 RUN --mount=type=bind,source=scripts,target=/tmp/scripts \
     bash /tmp/scripts/customize-bashrc.sh
 
