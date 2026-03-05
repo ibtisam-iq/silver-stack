@@ -1,0 +1,18 @@
+Welcome to SilverStack CI/CD Dev Machine! 🛠️
+
+A 4-node custom-domain CI/CD stack — each service exposes itself
+on your own domain with SSL via Cloudflare Tunnel.
+
+  Node 1 → this machine       Jump server / dev workstation
+  Node 2 → jenkins-server     CI/CD automation
+  Node 3 → sonarqube-server   Code quality analysis
+  Node 4 → nexus-server       Artifact repository
+
+This is your entry point. SSH into each server and follow the
+Cloudflare setup steps on its welcome page to go live.
+
+  ssh jenkins-server      then follow steps → jenkins.yourdomain.com
+  ssh sonarqube-server    then follow steps → sonarqube.yourdomain.com
+  ssh nexus-server        then follow steps → nexus.yourdomain.com
+
+Tools: arkade  jq  yq  fx  task  just  fzf  btop  cfssl  ripgrep  code-server
