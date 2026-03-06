@@ -1,0 +1,46 @@
+kind: playground
+title: SilverStack Nexus Server
+description: Nexus Community Edition on Ubuntu 24.04 with systemd, Nginx reverse proxy, and cloudflared for instant public access via Cloudflare Tunnel — no firewall rules needed.
+categories:
+    - linux
+    - ci-cd
+    - containers
+playground:
+    networks:
+        - name: local
+          subnet: 172.16.0.0/24
+    machines:
+        - name: nexus-server
+          users:
+            - name: root
+            - name: ibtisam
+              default: true
+          drives:
+            - source: oci://ghcr.io/ibtisam-iq/nexus-rootfs:latest
+              format: ext4
+              mount: /
+              size: 50GiB
+          network:
+            interfaces:
+                - network: local
+          resources:
+            cpuCount: 4
+            ramSize: 8GiB
+    tabs:
+        - kind: ide
+          name: IDE
+          machine: nexus-server
+        - kind: terminal
+          name: ibtisam-iq
+          machine: nexus-server
+        - kind: http-port
+          name: "Nexus UI"
+          machine: nexus-server
+          number: 80
+    accessControl:
+        canList:
+            - anyone
+        canRead:
+            - anyone
+        canStart:
+            - anyone
