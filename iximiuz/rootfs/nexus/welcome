@@ -21,7 +21,7 @@ To expose Nexus publicly via Cloudflare Tunnel:
        sudo cloudflared service install <token>
   4. Route Traffic → Add public hostname:
        Subdomain: nexus   Domain: yourdomain.com
-       Service:   HTTP    URL:    localhost:__NEXUS_PORT__
+       Service:   HTTP    URL:    localhost:80
   5. Nexus is now live at https://nexus.yourdomain.com
 
 Quick commands:

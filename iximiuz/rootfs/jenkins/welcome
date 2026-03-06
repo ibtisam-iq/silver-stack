@@ -17,7 +17,7 @@ To expose Jenkins publicly via Cloudflare Tunnel:
        sudo cloudflared service install <token>
   4. Route Traffic → Add public hostname:
        Subdomain: jenkins   Domain: yourdomain.com
-       Service:   HTTP      URL:    localhost:__JENKINS_PORT__
+       Service:   HTTP      URL:    localhost:80
   5. Jenkins is now live at https://jenkins.yourdomain.com
 
 Quick commands:

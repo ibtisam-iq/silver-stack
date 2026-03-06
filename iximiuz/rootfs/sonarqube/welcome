@@ -21,7 +21,7 @@ To expose SonarQube publicly via Cloudflare Tunnel:
        sudo cloudflared service install <token>
   4. Route Traffic → Add public hostname:
        Subdomain: sonar   Domain: yourdomain.com
-       Service:   HTTP    URL:    localhost:__SONARQUBE_PORT__
+       Service:   HTTP    URL:    localhost:80
   5. SonarQube is now live at https://sonar.yourdomain.com
 
 Quick commands:
