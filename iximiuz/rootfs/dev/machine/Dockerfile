@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1
 # =============================================================================
 # Dev Machine Rootfs
 # Built on top of ubuntu-24-04-rootfs base image
