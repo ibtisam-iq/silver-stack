@@ -23,7 +23,7 @@ USER root
 
 # Install Docker CLI and set up Docker context
 RUN --mount=type=bind,source=scripts,target=/tmp/scripts \
-    USER=${USER} bash /tmp/scripts/get-docker.sh
+    USER=${USER} bash /tmp/scripts/install-docker.sh
 
 # install-tools.sh has rm -rf at end — must COPY (bind mount is read-only)
 COPY scripts/install-tools.sh /tmp/scripts/install-tools.sh
