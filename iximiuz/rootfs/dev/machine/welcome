@@ -1,0 +1,29 @@
+Welcome to SilverStack Dev Machine! 🛠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  RUNTIMES        java 21 · python3 · node LTS · npm · maven
+
+  CONTAINERS      docker · docker compose · docker buildx
+                  skopeo · dive · hadolint
+
+  KUBERNETES      kubectl · helm · kustomize · k9s
+                  kubectx · kubens · stern
+
+  INFRA & CI/CD   terraform · gh · aws cli v2
+                  ansible · ansible-lint · pre-commit · yamllint
+
+  SECURITY        trivy · gitleaks · cosign · syft
+
+  DATA & SEARCH   jq · yq · fzf · rg
+
+  DOCS            mkdocs · mkdocs-material
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Shortcuts   k · kgp · kgs · kgn · kaf   kubectl
+              d · dps · dc · dcup          docker
+              tf · tfi · tfp · tfa         terraform
+              g · gs · ga · gl             git
+              Run 'alias' to see the full list.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Docs: https://blog.ibtisam-iq.com     ⚠  Ephemeral — data lost on termination.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
