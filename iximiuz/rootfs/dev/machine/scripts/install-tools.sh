@@ -106,28 +106,7 @@ apt-get clean && rm -rf /var/lib/apt/lists/*
 # PHASE 5: Docker CE — official Docker repo
 # https://docs.docker.com/engine/install/ubuntu/
 # =============================================================================
-log_phase "PHASE 5: Docker CE"
-
-install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
-  -o /etc/apt/keyrings/docker.asc
-chmod a+r /etc/apt/keyrings/docker.asc
-
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \
-  https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
-  > /etc/apt/sources.list.d/docker.list
-
-apt-get update
-apt-get install -y \
-  docker-ce \
-  docker-ce-cli \
-  containerd.io \
-  docker-buildx-plugin \
-  docker-compose-plugin
-docker --version
-apt-get clean && rm -rf /var/lib/apt/lists/*
+log_phase "PHASE 5: Docker CE ... Installed via install-docker.sh already"
 
 # =============================================================================
 # PHASE 6: kubectl — official Kubernetes apt repo
