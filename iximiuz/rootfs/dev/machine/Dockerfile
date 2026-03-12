@@ -33,6 +33,9 @@ RUN chmod +x /tmp/scripts/install-tools.sh && /tmp/scripts/install-tools.sh
 RUN --mount=type=bind,source=scripts,target=/tmp/scripts \
     bash /tmp/scripts/setup-completions.sh
 
+# Fix ownership of anything root wrote into $HOME during build
+RUN chown -R ${USER}:${USER} /home/${USER}
+
 USER $USER
 ENV HOME=/home/$USER
 
