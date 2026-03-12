@@ -14,7 +14,7 @@ playground:
             - name: ibtisam
               default: true
           drives:
-            - source: oci://ghcr.io/ibtisam-iq/ubuntu-24-04-rootfs:latest
+            - source: oci://ghcr.io/ibtisam-iq/dev-machine-rootfs:latest
               mount: /
               size: 50GiB
           network:
