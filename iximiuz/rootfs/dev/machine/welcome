@@ -1,27 +1,30 @@
-Welcome to SilverStack Dev Machine! 🛠️
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                  Welcome to SilverStack Dev Machine!  🛠                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  A fully provisioned DevOps workstation — no setup required.                │
+│  All tools, runtimes, and shell shortcuts are pre-installed and ready.      │
+└─────────────────────────────────────────────────────────────────────────────┘
 
-  RUNTIMES        java 21 · python3 · node LTS · npm · maven
+  Pre-installed tools:
 
-  CONTAINERS      docker · docker compose · docker buildx
-                  skopeo · dive · hadolint
+  RUNTIMES        java 21   python3    node LTS    npm    maven
+  CONTAINERS      docker    docker-compose    buildx    skopeo    dive    hadolint
+  KUBERNETES      kubectl   helm    kustomize    k9s    kubectx    kubens    stern
+  INFRA & CI/CD   terraform gh  aws cli v2  ansible  ansible-lint  pre-commit  yamllint
+  SECURITY        trivy     gitleaks    cosign    syft
+  DATA & SEARCH   jq    yq    fzf    rg
+  NETWORKING      nmap    socat    ssh    openssl
 
-  KUBERNETES      kubectl · helm · kustomize · k9s
-                  kubectx · kubens · stern
+  Pre-defined shortcuts:
 
-  INFRA & CI/CD   terraform · gh · aws cli v2
-                  ansible · ansible-lint · pre-commit · yamllint
+  kubectl    →  k  kgp  kgs  kgn  kgd  kaf  kdf  kdp  kns  kctx  klog  kexec
+  docker     →  d  dps  dpsa  di  dex  dlog  dprune  dc  dcup  dcdown  dclogs
+  terraform  →  tf  tfi  tfp  tfa  tfd  tfv  tff
+  git        →  g  gs  ga  gc  gp  gl  gco  gb  gd
+  general    →  ll  la  ..  ...  ports  myip  paths
 
-  SECURITY        trivy · gitleaks · cosign · syft
+  Run 'alias' to see the full list.
 
-  DATA & SEARCH   jq · yq · fzf · rg
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Shortcuts   k · kgp · kgs · kgn · kaf   kubectl
-              d · dps · dc · dcup          docker
-              tf · tfi · tfp · tfa         terraform
-              g · gs · ga · gl             git
-              Run 'alias' to see the full list.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Docs: https://blog.ibtisam-iq.com     ⚠  Ephemeral — data lost on termination.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  Docs: https://blog.ibtisam-iq.com      ⚠  Ephemeral — data lost on exit.   │
+└─────────────────────────────────────────────────────────────────────────────┘
