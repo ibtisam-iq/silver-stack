@@ -16,8 +16,6 @@ Welcome to SilverStack Dev Machine! 🛠️
 
   DATA & SEARCH   jq · yq · fzf · rg
 
-  DOCS            mkdocs · mkdocs-material
-
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   Shortcuts   k · kgp · kgs · kgn · kaf   kubectl
               d · dps · dc · dcup          docker

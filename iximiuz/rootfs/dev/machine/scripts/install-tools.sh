@@ -390,14 +390,11 @@ pip3 install --break-system-packages \
   pre-commit \
   ansible \
   ansible-lint \
-  yamllint \
-  mkdocs \
-  mkdocs-material
+  yamllint
 
 pre-commit --version
 ansible --version
 yamllint --version
-mkdocs --version
 
 # =============================================================================
 # PHASE 27: Final cleanup
