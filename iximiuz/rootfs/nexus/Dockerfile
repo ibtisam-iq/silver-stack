@@ -55,6 +55,9 @@ RUN /opt/nexus-scripts/healthcheck.sh ${USER}
 # Install cloudflared
 RUN /opt/nexus-scripts/install-cloudflared.sh
 
+# Fix ownership of anything root wrote into $HOME during build
+RUN chown -R ${USER}:${USER} /home/${USER}
+
 # Customize user shell
 USER $USER
 ENV HOME=/home/$USER
@@ -64,6 +67,7 @@ RUN sed -i "s/__NEXUS_PORT__/${NEXUS_PORT}/g" $HOME/.welcome
 RUN --mount=type=bind,source=scripts,target=/tmp/scripts \
     bash /tmp/scripts/customize-bashrc.sh
 
+# Must end as root — systemd (PID 1) requires root
 USER root
 
 EXPOSE 22 80 ${NEXUS_PORT}

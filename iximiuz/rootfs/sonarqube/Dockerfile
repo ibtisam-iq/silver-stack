@@ -65,6 +65,9 @@ RUN /opt/sonarqube-scripts/healthcheck.sh ${USER}
 # Install cloudflared for secure tunneling
 RUN /opt/sonarqube-scripts/install-cloudflared.sh
 
+# Fix ownership of anything root wrote into $HOME during build
+RUN chown -R ${USER}:${USER} /home/${USER}
+
 # Customize user's bashrc and add welcome message
 USER $USER
 ENV HOME=/home/$USER
@@ -74,6 +77,7 @@ RUN sed -i "s/__SONARQUBE_PORT__/${SONARQUBE_PORT}/g" $HOME/.welcome
 RUN --mount=type=bind,source=scripts,target=/tmp/scripts \
     bash /tmp/scripts/customize-bashrc.sh
 
+# Must end as root — systemd (PID 1) requires root
 USER root
 
 EXPOSE 22 80 ${SONARQUBE_PORT}
