@@ -36,16 +36,24 @@ RUN sed -i "s/__JENKINS_PORT__/${JENKINS_PORT}/g" /etc/systemd/system/jenkins.se
 COPY configs/sudoers.d/jenkins-user /etc/sudoers.d/jenkins-user
 COPY configs/systemd/lab-init.service /etc/systemd/system/lab-init.service
 
-# Copy and permission installation scripts
+# Build-time scripts → /opt/jenkins-scripts/
+# These scripts run during docker build only. These install, configure,
+# and verify the image. Not meant to be run by the user.
 COPY scripts/ /opt/jenkins-scripts/
 RUN chmod +x /opt/jenkins-scripts/*.sh
 
+# Post-setup scripts → /usr/local/bin/
+# These two scripts are meant to be run BY THE USER after Jenkins is set up.
+# Placed in /usr/local/bin/ so they are on PATH and callable directly:
+#   install-pipeline-tools   — installs Maven, Docker, Node.js etc.
+#   install-jenkins-plugins  — installs Jenkins plugins via CLI
+RUN install -m 0755 /opt/jenkins-scripts/install-pipeline-tools.sh \
+        /usr/local/bin/install-pipeline-tools && \
+    install -m 0755 /opt/jenkins-scripts/install-plugins.sh \
+        /usr/local/bin/install-plugins
+
 # Install Java and Jenkins
 RUN /opt/jenkins-scripts/install-jenkins.sh ${JENKINS_PORT}
-
-# Install CI/CD pipeline tools
-# Maven, Node.js, Python, Docker, Trivy, AWS CLI, kubectl, Helm, Terraform, Ansible
-# RUN /opt/jenkins-scripts/install-pipeline-tools.sh
 
 # Configure Nginx reverse proxy
 RUN /opt/jenkins-scripts/configure-nginx.sh
