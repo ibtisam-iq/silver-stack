@@ -3,11 +3,13 @@ Welcome to SilverStack Jenkins Lab! 🚀
 Jenkins is running internally at http://localhost:__JENKINS_PORT__
 Nginx reverse proxy is listening on port 80 (internal)
 
-Tools:
+Installed Tools:
+  java 21       jenkins LTS    nginx          cloudflared
+  maven 3.9.15  node 22 LTS    python 3.12    docker 29.x
+  trivy 0.69.3  aws-cli v2     kubectl 1.35   helm 4.1.4
+  terraform 1.14.x             ansible 2.20
 
-- cloudflared         Cloudflare Tunnel for public access
-- java 21             Modern LTS Java runtime
-- arkade  jq  yq  fx  task  just  fzf  btop  cfssl  ripgrep
+  arkade  jq  yq  fx  task  just  fzf  btop  cfssl  ripgrep
 
 To expose Jenkins publicly via Cloudflare Tunnel:
 

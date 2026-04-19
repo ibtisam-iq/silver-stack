@@ -43,6 +43,10 @@ RUN chmod +x /opt/jenkins-scripts/*.sh
 # Install Java and Jenkins
 RUN /opt/jenkins-scripts/install-jenkins.sh ${JENKINS_PORT}
 
+# Install CI/CD pipeline tools
+# Maven, Node.js, Python, Docker, Trivy, AWS CLI, kubectl, Helm, Terraform, Ansible
+RUN /opt/jenkins-scripts/install-pipeline-tools.sh
+
 # Configure Nginx reverse proxy
 RUN /opt/jenkins-scripts/configure-nginx.sh
 
