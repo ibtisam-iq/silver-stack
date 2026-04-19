@@ -90,7 +90,15 @@ echo "      ✓ $(docker --version)"
 TRIVY_VERSION="0.69.3"
 echo ""
 echo "[5/10] Installing Trivy ${TRIVY_VERSION} (pinned — 0.69.4 was malicious, CVE-2026-33634)..."
-wget -q "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.deb" \
+
+ARCH="$(dpkg --print-architecture)"
+case "${ARCH}" in
+    amd64)  TRIVY_ARCH="64bit" ;;
+    arm64)  TRIVY_ARCH="ARM64" ;;
+    *)      echo "Unsupported arch: ${ARCH}"; exit 1 ;;
+esac
+
+wget -q "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-${TRIVY_ARCH}.deb" \
     -O /tmp/trivy.deb
 dpkg -i /tmp/trivy.deb
 rm /tmp/trivy.deb
@@ -99,7 +107,15 @@ echo "      ✓ $(trivy --version | head -1)"
 # ── 6. AWS CLI v2 (AWS official installer — always latest) ───────────
 echo ""
 echo "[6/10] Installing AWS CLI v2..."
-curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" \
+
+ARCH="$(uname -m)"
+case "${ARCH}" in
+    x86_64)  AWS_ARCH="x86_64"  ;;
+    aarch64) AWS_ARCH="aarch64" ;;
+    *)       echo "Unsupported arch: ${ARCH}"; exit 1 ;;
+esac
+
+curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip" \
     -o /tmp/awscliv2.zip
 unzip -q /tmp/awscliv2.zip -d /tmp/
 /tmp/aws/install
