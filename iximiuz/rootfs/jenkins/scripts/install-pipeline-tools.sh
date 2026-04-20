@@ -238,5 +238,5 @@ printf "║  %-20s %s\n" "Ansible:"   "$(ansible --version | head -1)           
 echo "╚══════════════════════════════════════════════════════════════╝"
 echo ""
 echo "  You can now run Jenkins pipelines that use these tools."
-echo "  Next step: Set up Jenkins, then run:  install-jenkins-plugins"
+echo "  Next step: Set up Jenkins, then run:  sudo install-plugins"
 echo ""

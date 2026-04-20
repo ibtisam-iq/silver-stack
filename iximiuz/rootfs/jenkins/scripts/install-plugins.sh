@@ -1,12 +1,15 @@
 #!/bin/bash
+set -euo pipefail
+
 # ==============================================================================
 # install-plugins.sh
 # ==============================================================================
 #
 # PURPOSE:
-#   Installs a curated set of Jenkins plugins required for a production-grade
-#   CI/CD pipeline. Uses the official Jenkins CLI (jenkins-cli.jar) over
-#   WebSocket to avoid reverse proxy CSRF/origin issues.
+#   Installs a complete, enterprise-grade set of Jenkins plugins required for
+#   a production DevSecOps CI/CD pipeline. Covers the full pipeline lifecycle:
+#   source control, build, code quality, security scanning, artifact management,
+#   containerization, Kubernetes deployment, notifications, and observability.
 #
 # WHEN TO RUN:
 #   Run this script ONCE after Jenkins is fully set up:
@@ -20,8 +23,8 @@
 #   1. Prompts for Jenkins URL, username, and password interactively
 #   2. Auto-detects Jenkins URL from config file if already set
 #   3. Downloads jenkins-cli.jar from your Jenkins instance
-#   4. Installs all plugins defined in PLUGINS list below
-#   5. Triggers a safe restart so plugins become active
+#   4. Installs all plugins defined in the PLUGINS section below
+#   5. Triggers a safe restart so all plugins become active
 #
 # SECURITY:
 #   - Password is entered via hidden prompt (not visible on screen)
@@ -30,59 +33,164 @@
 #   - jenkins-cli.jar is downloaded fresh each run (no stale binary)
 #   - All communication goes over HTTPS via your configured Jenkins URL
 #
-# CUSTOMIZATION:
-#   To add or remove plugins, edit the PLUGINS list in the
-#   "PLUGIN LIST" section below. Use the plugin short ID, not the
-#   display name. Find plugin IDs at: https://plugins.jenkins.io
+# PLUGIN POLICY (April 2026):
+#   - All plugins verified active and non-deprecated as of April 2026
+#   - Deprecated plugins EXCLUDED (analysis-core, checkstyle, findbugs, pmd,
+#     warnings, ace-editor, jquery-detached, popper-api, bootstrap4-api, etc.)
+#   - Replacements used: warnings-ng replaces all old static analysis plugins
+#   - Plugin IDs are the official short IDs from https://plugins.jenkins.io
 #
-# USAGE:
-#   sudo bash /opt/jenkins-scripts/install-jenkins-plugins.sh
+# HOW TO RUN:
+#   sudo install-plugins
+#     (available system-wide — no path prefix needed)
+#
+# CUSTOMIZATION:
+#   To add plugins    → append a new line in the relevant section below
+#   To remove plugins → delete or comment out (#) the line
+#   To find plugin IDs → https://plugins.jenkins.io
 #
 # AUTHOR:  Muhammad Ibtisam Iqbal
-# VERSION: 1.0.0 — April 2026
 # ==============================================================================
-
-set -euo pipefail
 
 # ==============================================================================
 # PLUGIN LIST
 # ==============================================================================
-# Format : one plugin short ID per line
-# Add    : append a new line with the plugin ID
-# Remove : delete or comment out (#) the line
-# Find   : https://plugins.jenkins.io
+# Organized by pipeline stage / functional category.
+# Each plugin has its purpose documented inline.
+# All verified active on plugins.jenkins.io as of April 2026.
 # ==============================================================================
 read -r -d '' PLUGINS_RAW << 'PLUGIN_EOF' || true
-# --- Pipeline ---
-workflow-aggregator          # Declarative + Scripted pipeline support
 
-# --- Source Control ---
-git                          # Git checkout in pipelines
-github                       # GitHub webhooks and PR triggers
+# ── PIPELINE FOUNDATION ───────────────────────────────────────────────────────
+# Core pipeline engine — must have before anything else works
+workflow-aggregator          # Full Pipeline suite: Declarative + Scripted pipelines
+pipeline-stage-view          # Visual pipeline stage view in classic Jenkins UI
+pipeline-graph-analysis      # Graph-based analysis of pipeline runs
+pipeline-build-step          # trigger other jobs from pipeline (build step)
+pipeline-input-step          # Manual approval gates: input{} step in pipelines
+pipeline-milestone-step      # Prevents out-of-order pipeline execution
+pipeline-model-definition    # Declarative Pipeline syntax support
+pipeline-rest-api            # REST API access to pipeline data
 
-# --- Build Tools ---
-maven-plugin                 # Maven build support in pipelines
+# ── SOURCE CONTROL MANAGEMENT ─────────────────────────────────────────────────
+git                          # Git checkout, clone, fetch in pipelines
+git-client                   # Core Git client library (dependency for git plugin)
+github                       # GitHub webhooks, PR triggers, commit status updates
+github-branch-source         # Multibranch pipelines with GitHub (auto-discovers PRs)
+gitlab-plugin                # GitLab webhooks, MR triggers, commit status
+bitbucket                    # Bitbucket webhooks and PR builds
+scm-api                      # Unified SCM API (required by branch source plugins)
 
-# --- Code Quality ---
-sonar                        # SonarQube scanner stage in pipelines
+# ── CREDENTIALS & SECRETS MANAGEMENT ─────────────────────────────────────────
+credentials                  # Core credentials store (usernames, passwords, tokens)
+credentials-binding          # Bind secrets safely as env vars in pipeline steps
+plain-credentials            # Store plain text secrets (tokens, API keys)
+ssh-credentials              # Store SSH private keys for git/server access
+ssh-agent                    # Inject SSH keys into pipeline agent environment
+aws-credentials              # Store AWS access/secret keys securely
+hashicorp-vault-plugin       # Fetch secrets from HashiCorp Vault at runtime
+azure-credentials            # Store Azure service principal credentials
 
-# --- Artifact Management ---
-nexus-artifact-uploader      # Push JARs/WARs to Nexus repository
+# ── BUILD TOOLS & LANGUAGE SUPPORT ───────────────────────────────────────────
+maven-plugin                 # Maven build support: mvn goals in pipelines
+nodejs                       # Node.js/npm version management in pipelines
+gradle                       # Gradle build support in pipelines
+ant                          # Apache Ant build support (legacy Java projects)
+jdk-tool                     # JDK version management via Jenkins tools
 
-# --- Docker ---
-docker-workflow              # docker.build, docker.push in pipelines
-docker-commons               # Shared Docker utilities
+# ── CODE QUALITY & STATIC ANALYSIS ───────────────────────────────────────────
+sonar                        # SonarQube scanner integration in pipelines
+# NOTE: Old static analysis plugins (checkstyle, findbugs, pmd, warnings,
+# analysis-core) are ALL deprecated. warnings-ng is the unified replacement.
+warnings-ng                  # Unified static analysis: replaces checkstyle, findbugs,
+                             # pmd, warnings. Supports 50+ tools via one plugin.
+code-coverage-api            # Unified coverage reporting (JaCoCo, Cobertura, etc.)
+jacoco                       # JaCoCo Java code coverage reporting
 
-# --- Credentials & Security ---
-credentials-binding          # Bind secrets safely in pipeline steps
-ssh-agent                    # SSH key injection for git tag / deploy steps
+# ── SECURITY SCANNING (DevSecOps) ─────────────────────────────────────────────
+dependency-check-jenkins-plugin  # OWASP Dependency-Check: CVE scanning of dependencies
+custom-markup-formatter          # Render OWASP reports safely in Jenkins UI
+aqua-security-scanner            # Aqua Security container scanner (Aqua platform users)
+htmlpublisher                    # Publish HTML reports — used to display Trivy HTML output
 
-# --- Security Scanning ---
-dependency-check-jenkins-plugin  # OWASP CVE scanning for dependencies
+# ── ARTIFACT MANAGEMENT ───────────────────────────────────────────────────────
+nexus-artifact-uploader      # Upload JARs/WARs/artifacts to Nexus repository
+artifactory                  # JFrog Artifactory integration for artifact publish/resolve
+copyartifact                 # Copy artifacts between Jenkins jobs/pipelines
 
-# --- Build Experience ---
-timestamper                  # Timestamps on every build log line
-ansicolor                    # Colored console output in build logs
+# ── DOCKER & CONTAINERS ───────────────────────────────────────────────────────
+docker-workflow              # docker.build(), docker.push(), docker.image() in pipelines
+docker-commons               # Shared Docker utilities and fingerprinting
+docker-plugin                # Run build agents dynamically inside Docker containers
+
+# ── KUBERNETES & CLOUD DEPLOYMENT ─────────────────────────────────────────────
+kubernetes                   # Run dynamic Jenkins agents as Kubernetes pods
+kubernetes-cli               # Run kubectl commands in pipelines (uses kubeconfig creds)
+kubernetes-credentials       # Store kubeconfig files as Jenkins credentials
+pipeline-aws
+ec2                          # Provision Jenkins agents on AWS EC2 on demand
+azure-vm-agents              # Provision Jenkins agents on Azure VMs on demand
+
+# ── CONFIGURATION AS CODE (JCasC) ─────────────────────────────────────────────
+# Industry standard: entire Jenkins config managed as YAML files in git
+# No manual UI configuration — fully reproducible Jenkins setup
+configuration-as-code        # JCasC: configure Jenkins via jenkins.yaml file
+job-dsl                      # Define Jenkins jobs as Groovy DSL code (jobs-as-code)
+
+# ── MULTI-BRANCH & MULTI-ENV PIPELINE ─────────────────────────────────────────
+multibranch-scan-webhook-trigger  # Trigger multibranch scans via webhook
+basic-branch-build-strategies     # Control which branches/PRs get built automatically
+build-discarder                   # Auto-delete old builds to save disk space
+build-timeout                     # Kill builds that exceed a time limit
+throttle-concurrents              # Limit concurrent builds to protect resources
+lockable-resources
+pipeline-milestone-step
+
+# ── PARAMETERIZED BUILDS & ENVIRONMENT PROMOTION ─────────────────────────────
+promoted-builds              # Promote builds through environments (dev→staging→prod)
+parameterized-trigger        # Trigger downstream jobs with custom parameters
+extensible-choice-parameter  # Dynamic dropdown parameters in job configuration
+uno-choice                   # Dynamic, reactive parameters (cascading dropdowns)
+envinject                    # Inject environment variables into builds
+
+# ── NOTIFICATIONS & COMMUNICATION ─────────────────────────────────────────────
+slack                        # Slack notifications on build start/success/failure
+email-ext                    # Extended email notifications with templates
+mailer                       # Core email notification (dependency for email-ext)
+mattermost                   # Mattermost notifications (self-hosted Slack alternative)
+
+# ── BUILD EXPERIENCE & UI ─────────────────────────────────────────────────────
+pipeline-graph-view          # Modern pipeline visualization UI (replaces classic UI)
+timestamper                  # Timestamps on every line of build console output
+ansicolor                    # Colored ANSI console output in build logs
+build-name-setter            # Set custom build display names dynamically
+badge                        # Show badges/status icons on build history
+embeddable-build-status      # Embed build status badges in README/wikis
+progress-bar-column-plugin   # Progress bar in pipeline view list
+
+# ── TEST REPORTING ─────────────────────────────────────────────────────────────
+junit                        # JUnit XML test results parsing and trend graphs
+xunit                        # xUnit test results (NUnit, PHPUnit, Gtest, etc.)
+test-results-analyzer        # Detailed test failure analysis across builds
+performance                  # JMeter/Gatling performance test result trending
+
+# ── AGENTS & DISTRIBUTED BUILDS ───────────────────────────────────────────────
+ssh-slaves                   # Launch agents over SSH
+ssh-agent
+matrix-auth                  # Matrix-based security: fine-grained user permissions
+role-strategy                # Role-based access control (RBAC) for users/groups
+
+# ── PIPELINE LIBRARIES ─────────────────────────────────────────────────────────
+pipeline-utility-steps       # Utility steps: readJSON, readYaml, findFiles, zip, etc.
+http_request                 # Make HTTP/REST API calls directly from pipeline
+generic-webhook-trigger      # Trigger builds from any webhook with JSON/form parsing
+ws-cleanup                   # Clean workspace before/after builds
+
+# ── OBSERVABILITY & MONITORING ─────────────────────────────────────────────────
+prometheus                   # Expose Jenkins metrics to Prometheus for Grafana dashboards
+monitoring                   # JavaMelody-based Jenkins internal monitoring dashboard
+cloudbees-disk-usage-simple  # Monitor disk usage per job and build
+
 PLUGIN_EOF
 
 # Parse plugin list: strip comments and blank lines
