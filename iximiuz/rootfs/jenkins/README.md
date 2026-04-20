@@ -1,10 +1,12 @@
 # Jenkins LTS Rootfs
 
-Production-grade Jenkins LTS rootfs for iximiuz playgrounds. Boots Jenkins via systemd with Nginx as a reverse proxy and cloudflared pre-installed for instant custom-domain access with SSL via Cloudflare Tunnel. Ships with all CI/CD pipeline tools pre-installed — no manual setup required.
+Production-grade Jenkins LTS rootfs for iximiuz playgrounds. Boots Jenkins via systemd with Nginx as a reverse proxy and cloudflared pre-installed for instant custom-domain access with SSL via Cloudflare Tunnel. Pipeline tools and plugins are **not** pre-installed — they are provided as ready-to-run post-setup scripts to keep the image lean.
 
 ## What It Is
 
-A child image built on top of `ubuntu-24-04-rootfs`. On first boot, systemd starts `lab-init` → `nginx` → `jenkins` in order. Jenkins is accessible immediately on port 80 via Nginx. All pipeline tools (Maven, Node.js, Docker, kubectl, Helm, Terraform, Ansible, etc.) are available system-wide from the first pipeline run.
+A child image built on top of `ubuntu-24-04-rootfs`. On first boot, systemd starts `lab-init` → `nginx` → `jenkins` in order. Jenkins is accessible immediately on port 80 via Nginx.
+
+Pipeline tools (Maven, Docker, kubectl, etc.) and Jenkins plugins are intentionally **not** baked into the image. Instead, two scripts are placed on `PATH` and can be run after the system is live — giving you full control over what gets installed and keeping the image size minimal.
 
 ## What's Inside
 
@@ -18,9 +20,13 @@ A child image built on top of `ubuntu-24-04-rootfs`. On first boot, systemd star
 | Nginx | Latest apt | Reverse proxy → port 80 |
 | cloudflared | Latest | Cloudflare Tunnel client |
 
-### CI/CD Pipeline Tools
+### Post-Setup Scripts (available on PATH)
 
-All tools installed via official upstream sources and pinned to verified stable versions as of April 2026.
+Two scripts are copied to `/usr/local/bin/` during the build and are callable directly — no path prefix needed. They are **not** run during the build.
+
+#### `install-pipeline-tools`
+
+Installs 10 CI/CD pipeline tools system-wide. Run this **before** your first Jenkins pipeline.
 
 | Tool | Version | Purpose |
 |---|---|---|
@@ -38,6 +44,26 @@ All tools installed via official upstream sources and pinned to verified stable 
 
 > **⚠️ Trivy Security Note:** Trivy `v0.69.4` was a confirmed supply chain attack (CVE-2026-33634, March 19, 2026). The malicious binary exfiltrated secrets from CI/CD pipelines via compromised Aqua Security credentials. This image pins `v0.69.3` — the last verified safe release. Ref: [trivy/discussions/10425](https://github.com/aquasecurity/trivy/discussions/10425)
 
+**To skip a tool**, open the script and comment out the relevant section before running:
+
+```bash
+sudo install-pipeline-tools
+```
+
+#### `install-plugins`
+
+Installs a complete, enterprise-grade set of Jenkins plugins covering the full DevSecOps pipeline lifecycle: SCM, build tools, code quality, security scanning, artifact management, Docker, Kubernetes, notifications, and observability.
+
+Run this **after** Jenkins is fully set up (setup wizard complete + Jenkins URL configured):
+
+```bash
+sudo install-plugins
+```
+
+The script interactively prompts for your Jenkins URL, username, and password. It downloads `jenkins-cli.jar` fresh, installs all plugins, and triggers a safe restart.
+
+**To skip specific plugins**, open the script and comment out (`#`) any line in the plugin list before running.
+
 ## Directory Structure
 
 ```
@@ -54,7 +80,8 @@ jenkins/
 │       └── lab-init.service
 └── scripts/
     ├── install-jenkins.sh          # Installs Java 21 + Jenkins LTS
-    ├── install-pipeline-tools.sh   # Installs all 10 CI/CD pipeline tools
+    ├── install-pipeline-tools.sh   # Post-setup: installs 10 CI/CD tools (→ /usr/local/bin/)
+    ├── install-plugins.sh          # Post-setup: installs Jenkins plugins (→ /usr/local/bin/)
     ├── configure-nginx.sh          # Enables site, systemd override
     ├── lab-init.sh                 # SSH keys + runtime dir setup
     ├── healthcheck.sh              # Build-time validation (8 sections)
@@ -104,20 +131,19 @@ docker exec jenkins-test systemctl is-active lab-init nginx jenkins
 docker exec jenkins-test \
   cat /var/lib/jenkins/.jenkins/secrets/initialAdminPassword
 
-# Verify pipeline tools
-docker exec jenkins-test mvn -version
-docker exec jenkins-test node --version
-docker exec jenkins-test docker --version
-docker exec jenkins-test kubectl version --client
-docker exec jenkins-test helm version --short
-docker exec jenkins-test terraform version
-docker exec jenkins-test ansible --version
-
 # Test Nginx reverse proxy
 docker exec jenkins-test curl -f http://localhost/health
 
 # Jenkins UI
 open http://localhost:8080
+
+# --- Post-setup (optional) ---
+
+# Install pipeline tools (Maven, Docker, Node.js, Trivy, AWS CLI, kubectl, Helm, Terraform, Ansible)
+docker exec -it jenkins-test sudo install-pipeline-tools
+
+# Install Jenkins plugins (after completing the setup wizard)
+docker exec -it jenkins-test sudo install-plugins
 ```
 
 ## Playground
