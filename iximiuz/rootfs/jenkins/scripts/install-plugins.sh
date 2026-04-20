@@ -104,8 +104,7 @@ sonar                        # SonarQube scanner integration in pipelines
 # analysis-core) are ALL deprecated. warnings-ng is the unified replacement.
 warnings-ng                  # Unified static analysis: replaces checkstyle, findbugs,
                              # pmd, warnings. Supports 50+ tools via one plugin.
-code-coverage-api            # Unified coverage reporting (JaCoCo, Cobertura, etc.)
-jacoco                       # JaCoCo Java code coverage reporting
+coverage
 
 # ── SECURITY SCANNING (DevSecOps) ─────────────────────────────────────────────
 dependency-check-jenkins-plugin  # OWASP Dependency-Check: CVE scanning of dependencies
