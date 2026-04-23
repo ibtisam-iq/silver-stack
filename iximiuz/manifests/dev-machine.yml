@@ -22,7 +22,7 @@ playground:
                 - network: local
           resources:
             cpuCount: 4
-            ramSize: 8GiB
+            ramSize: 10GiB
     tabs:
         - kind: ide
           name: IDE
