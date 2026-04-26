@@ -31,8 +31,8 @@
 name: iximiuz Playground Keeper
 
 on:
-  schedule:
-    - cron: '*/3 * * * *'
+  # schedule:
+  #  - cron: '*/3 * * * *'
   workflow_dispatch:
     inputs:
       force_restart:
