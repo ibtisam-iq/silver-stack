@@ -13,7 +13,7 @@
   INFRA & CI/CD   terraform aws cli v2  ansible  ansible-lint  pre-commit  yamllint  gh
   SECURITY        trivy     gitleaks    cosign    syft
   DATA & SEARCH   jq        yq          fzf       rg
-  NETWORKING      nmap      openssl     ssh       socat
+  NETWORKING      nmap      openssl     ssh       socat        cloudflared
 
   Pre-defined shortcuts:
 
