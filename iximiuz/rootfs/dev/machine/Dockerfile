@@ -29,6 +29,9 @@ RUN --mount=type=bind,source=scripts,target=/tmp/scripts \
 COPY scripts/install-tools.sh /tmp/scripts/install-tools.sh
 RUN chmod +x /tmp/scripts/install-tools.sh && /tmp/scripts/install-tools.sh
 
+COPY scripts/install-cloudflared.sh /tmp/scripts/install-cloudflared.sh
+RUN chmod +x /tmp/scripts/install-cloudflared.sh && /tmp/scripts/install-cloudflared.sh
+
 # Set up all bash/zsh completions
 RUN --mount=type=bind,source=scripts,target=/tmp/scripts \
     bash /tmp/scripts/setup-completions.sh
