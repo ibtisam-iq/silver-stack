@@ -23,6 +23,8 @@
   git        →  g  gs  ga  gc  gp  gl  gco  gb  gd
   general    →  ll  la  ..  ...  ports  myip  paths
 
+  Tab completion enabled: kubectl (k)  docker (d)
+
   Run 'alias' to see the full list.
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
