@@ -1,6 +1,0 @@
-title: Services
-collapse: false  # Keep expanded for immediate visibility
-nav:
-  - Overview: index.md
-  - Nexus: nexus.md
-  - SonarQube: sonarqube.md

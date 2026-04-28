@@ -1,7 +1,0 @@
-lychee
-html5validator
-mdformat
-mdformat-gfm
-mdformat-tables
-mdformat-frontmatter
-mdformat-mkdocs
