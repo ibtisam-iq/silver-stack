@@ -10,6 +10,7 @@ cat <<'EOF' >> "$HOME/.bashrc"
 
 # ─── kubectl aliases ─────────────────────────────────────────────────────────
 alias k='kubectl'
+complete -o default -F __start_kubectl k
 alias kgp='kubectl get pods'
 alias kgs='kubectl get svc'
 alias kgn='kubectl get nodes'
@@ -24,7 +25,7 @@ alias kexec='kubectl exec -it'
 
 # ─── Docker aliases ──────────────────────────────────────────────────────────
 alias d='docker'
-alias dps='docker ps'
+complete -F $(complete -p docker 2>/dev/null | awk '{print $(NF-1)}') d 2>/dev/null || truealias dps='docker ps'
 alias dpsa='docker ps -a'
 alias di='docker images'
 alias dex='docker exec -it'
