@@ -12,10 +12,10 @@ When I study a concept or run a setup for the first time, the depth, experiments
 
 When that same setup becomes:
 
-- clear  
-- trusted  
-- repeatable  
-- automated  
+- clear
+- trusted
+- repeatable
+- automated
 
 its final working form is placed here.
 
@@ -23,18 +23,18 @@ This repository is that promoted, reproducible state.
 
 ## 🧱 What Lives Here
 
-- Kubernetes manifests  
-- Infrastructure as Code  
-- CI/CD automation  
-- Service deployment patterns  
-- Environment provisioning scripts  
-- Platform building blocks  
+- Kubernetes manifests
+- Infrastructure as Code
+- CI/CD automation
+- Service deployment patterns
+- Environment provisioning scripts
+- Platform building blocks
 
 Each item represents something that has been:
 
-1. understood  
-2. executed in practice  
-3. verified  
+1. understood
+2. executed in practice
+3. verified
 4. made rebuildable
 
 ## 🚫 What Does Not Belong Here
@@ -43,10 +43,10 @@ This is not a learning log and not an experiment space.
 
 You will not find:
 
-- raw notes  
-- partial setups  
-- trial-and-error  
-- copied examples  
+- raw notes
+- partial setups
+- trial-and-error
+- copied examples
 
 Those live in the [Knowledge Base](https://nectar.ibtisam-iq.com/).
 
@@ -61,28 +61,18 @@ My work follows a consistent flow:
 
 This repository represents the reproducibility layer in that system.
 
-## ⚙️ Infra Bootstrap
-
-The `infra-bootstrap/` directory contains the automation used to spin up complete environments from a single command.
-
-It is the executable path from:
-
-reusable components → running system
-
-📖 Documentation: https://bootstrap.ibtisam-iq.com
-
 ## 💻 Quick Start
 
 ### Initialize Kubernetes Control Plane
 
 ```bash
-curl -sL https://raw.githubusercontent.com/ibtisam-iq/silver-stack/main/infra-bootstrap/scripts/kubernetes/entrypoints/init-controlplane.sh | sudo bash
+curl -sL https://raw.githubusercontent.com/ibtisam-iq/silver-stack/main/scripts/kubernetes/entrypoints/init-controlplane.sh | sudo bash
 ````
 
 ### Join Worker Node
 
 ```bash
-curl -sL https://raw.githubusercontent.com/ibtisam-iq/silver-stack/main/infra-bootstrap/scripts/kubernetes/entrypoints/init-worker-node.sh | sudo bash
+curl -sL https://raw.githubusercontent.com/ibtisam-iq/silver-stack/main/scripts/kubernetes/entrypoints/init-worker-node.sh | sudo bash
 ```
 
 ## 📚 Related Platforms

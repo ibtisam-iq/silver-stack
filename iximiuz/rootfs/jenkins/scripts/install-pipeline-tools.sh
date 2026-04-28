@@ -148,6 +148,11 @@ rm /tmp/trivy.deb
 echo "       ✓ $(trivy --version | head -1)"
 echo ""
 
+# Trivy cache dir — must exist and be owned by jenkins before any pipeline runs
+mkdir -p /var/cache/trivy
+chown -R jenkins:jenkins /var/cache/trivy
+chmod 755 /var/cache/trivy
+
 # ── [6/10] AWS CLI v2 ────────────────────────────────────────────────
 echo "[6/10] Installing AWS CLI v2 (latest)..."
 echo "       Source: AWS official installer (awscli.amazonaws.com)"

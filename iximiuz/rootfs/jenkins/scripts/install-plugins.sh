@@ -93,6 +93,7 @@ azure-credentials            # Store Azure service principal credentials
 
 # ── BUILD TOOLS & LANGUAGE SUPPORT ───────────────────────────────────────────
 maven-plugin                 # Maven build support: mvn goals in pipelines
+pipeline-maven               # Maven integration for pipelines
 nodejs                       # Node.js/npm version management in pipelines
 gradle                       # Gradle build support in pipelines
 ant                          # Apache Ant build support (legacy Java projects)
