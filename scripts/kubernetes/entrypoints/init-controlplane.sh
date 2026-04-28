@@ -184,6 +184,6 @@ blank
 # ───────────────────────── Phase 9: Bootstrap Control Plane ─────────────
 info "Phase 9 — Bootstrapping Kubernetes control plane"
 
-run_remote_script "$K8S_BASE_URL/cluster/silver-stack-controlplane.sh" "kubeadm init" || {
+run_remote_script "$K8S_BASE_URL/cluster/bootstrap-controlplane.sh" "kubeadm init" || {
   error "Failed to silver-stack Kubernetes control plane"
 }
