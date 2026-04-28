@@ -42,6 +42,7 @@ A child image built on top of [`ubuntu-24-04-rootfs`](../../ubuntu/README.md). U
 | rg | v14.1.1 | ripgrep — fast search |
 | nmap | Latest apt | Network scanner |
 | socat | Latest apt | Network relay |
+| cloudflared | Latest | Cloudflare Tunnel CLI |
 
 ## Directory Structure
 
@@ -52,9 +53,23 @@ dev/machine/
 └── scripts/
     ├── install-docker.sh           # Docker CE — official Docker apt repo
     ├── install-tools.sh            # All DevOps tools — 27 phases
+    ├── install-cloudflared.sh      # Cloudflare Tunnel CLI
     ├── setup-completions.sh        # Bash completions for all CLIs
     └── customize-bashrc.sh         # Aliases → ~/.bashrc
 ```
+
+## Tab Completion
+
+Tab completion is enabled for all major CLIs via `/etc/bash_completion.d/`. Additionally, the short aliases `k` (kubectl) and `d` (docker) are wired to the same completion functions as their full commands — so pressing Tab after `k` or `d` works exactly like `kubectl` or `docker`.
+
+```bash
+k get <TAB>        # same as: kubectl get <TAB>
+d run <TAB>        # same as: docker run <TAB>
+```
+
+## Networking Note
+
+This playground runs behind NAT — no public IP is assigned to the machine. Access is provided via a Cloudflare Tunnel, which is why `cloudflared` is pre-installed. If you need to expose a local service (e.g., a web app or API) to the public internet from within this lab, use `cloudflared tunnel` to route traffic without requiring port forwarding or a public IP.
 
 ## Build Arguments
 
