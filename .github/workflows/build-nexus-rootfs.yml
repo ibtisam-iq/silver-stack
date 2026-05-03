@@ -31,10 +31,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: amd64,arm64
+      # QEMU (cross-compilation) is intentionally omitted.
+      # This rootfs targets AMD64 exclusively.
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -72,7 +70,7 @@ jobs:
         with:
           context: ./iximiuz/rootfs/nexus
           file: ./iximiuz/rootfs/nexus/Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           load: false
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
