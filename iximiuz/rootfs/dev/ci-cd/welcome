@@ -1,6 +1,6 @@
 Welcome to SilverStack CI/CD Dev Machine! 🛠️
 
-A 4-node custom-domain CI/CD stack — each service exposes itself
+A 4-node custom-domain CI/CD stack - each service exposes itself
 on your own domain with SSL via Cloudflare Tunnel.
 
   Node 1 → this machine       Jump server / dev workstation

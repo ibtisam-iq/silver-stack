@@ -1,7 +1,7 @@
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                  Welcome to SilverStack Dev Machine!  🛠                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  A fully provisioned DevOps workstation — no setup required.                │
+│  A fully provisioned DevOps workstation - no setup required.                │
 │  All tools, runtimes, and shell shortcuts are pre-installed and ready.      │
 └─────────────────────────────────────────────────────────────────────────────┘
 
@@ -27,6 +27,4 @@
 
   Run 'alias' to see the full list.
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  Docs: https://blog.ibtisam-iq.com      ⚠  Ephemeral — data lost on exit.   │
-└─────────────────────────────────────────────────────────────────────────────┘
+Runbook: https://runbook.ibtisam-iq.com/containers/iximiuz/rootfs/setup-dev-machine-rootfs-image/

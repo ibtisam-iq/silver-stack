@@ -15,11 +15,11 @@ Default SonarQube credentials:
 
 To expose SonarQube publicly via Cloudflare Tunnel:
 
-  1. one.dash.cloudflare.com → Zero Trust → Networks → Connectors
-  2. Create tunnel → name it (e.g. sonarqube-lab) → choose Cloudflared
+  1. Go to dash.cloudflare.com/one → Networks → Connectors
+  2. Create tunnel → choose Cloudflared → name it (e.g. sonarqube-lab) → save
   3. Copy & run the install command shown:
        sudo cloudflared service install <token>
-  4. Route Traffic → Add public hostname:
+  4. Add a published application route:
        Subdomain: sonar   Domain: yourdomain.com
        Service:   HTTP    URL:    localhost:80
   5. SonarQube is now live at https://sonar.yourdomain.com
