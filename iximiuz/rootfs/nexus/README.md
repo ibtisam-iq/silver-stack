@@ -1,18 +1,22 @@
 # Nexus Repository Manager Rootfs
 
-Production-grade Nexus Community Edition rootfs for iximiuz playgrounds. Boots Nexus and Nginx via systemd with cloudflared pre-installed for instant custom-domain access with SSL via Cloudflare Tunnel.
+Production-grade Nexus 3 Community Edition rootfs for iximiuz playgrounds. Boots Nexus via systemd with Nginx as a reverse proxy and `cloudflared` pre-installed for instant public access with SSL via Cloudflare Tunnel - no firewall rules needed.
 
 ## What It Is
 
-A child image built on top of `ubuntu-24-04-rootfs`. On first boot, systemd starts `lab-init` → `nginx` → `nexus` in order. Nexus requires no external database — it uses its own embedded storage. It is accessible immediately on port 80 via Nginx — no manual setup required.
+A child image built on top of [`ubuntu-24-04-rootfs`](../ubuntu/README.md). On first boot, systemd starts `lab-init` → `nginx` → `nexus` in order. Nexus uses its own embedded storage under `/opt/sonatype-work` - no external database required. It is accessible immediately on port 80 via Nginx.
+
+![](https://github.com/ibtisam-iq/runbook/blob/main/assets/screenshots/nexus-server-drive-config.png)
+
+> **This is a microVM rootfs for the [iximiuz Labs](https://labs.iximiuz.com) platform.** The platform mounts it as a block device and boots it with its own kernel. systemd becomes PID 1 through the platform boot process. Use `labctl` to create and access the playground - see [Usage](#usage-in-an-iximiuz-playground) below.
 
 ## What's Inside
 
 | Component | Version | Detail |
 |---|---|---|
 | Base | `ubuntu-24-04-rootfs` | systemd-enabled Ubuntu 24.04 |
-| Java | OpenJDK 21 | LTS runtime (bundled Temurin also available) |
-| Nexus | 3.89.1-02 CE | Runs as `nexus` system user |
+| Java | OpenJDK 21 | LTS runtime for Nexus |
+| Nexus | `3.89.1-02` CE | Runs as `nexus` system user |
 | Nginx | Latest apt | Reverse proxy → port 80 |
 | cloudflared | Latest | Cloudflare Tunnel client |
 
@@ -22,81 +26,107 @@ A child image built on top of `ubuntu-24-04-rootfs`. On first boot, systemd star
 nexus/
 ├── Dockerfile
 ├── welcome
+├── README.md
 ├── configs/
 │   ├── nginx.conf                  # Upstream: 127.0.0.1:__NEXUS_PORT__
-│   ├── nexus.service
+│   ├── nexus.service               # Type=simple; ExecStart: /opt/nexus/bin/nexus run
 │   ├── sudoers.d/
-│   │   └── nexus-user
+│   │   └── nexus-user              # Limited sudo for nexus daemon
 │   └── systemd/
-│       └── lab-init.service
+│       └── lab-init.service        # oneshot: Before=ssh,nginx,nexus
 └── scripts/
-    ├── install-nexus.sh            # Java 21 + Nexus OSS (arch-aware)
-    ├── configure-nginx.sh          # Enables site, systemd override
-    ├── lab-init.sh                 # SSH keys + runtime dir setup
+    ├── install-nexus.sh            # Java 21 + Nexus CE 3.89.1 (arch-aware)
+    ├── configure-nginx.sh          # Installs nginx, enables site, systemd override
+    ├── lab-init.sh                 # SSH keys + /run dirs + data dir perms at each boot
     ├── healthcheck.sh              # Build-time validation (8 sections)
-    ├── customize-bashrc.sh         # Aliases → ~/.bashrc
-    └── install-cloudflared.sh
+    ├── customize-bashrc.sh         # Nexus/Nginx aliases → ~/.bashrc
+    └── install-cloudflared.sh      # Cloudflare Tunnel CLI
 ```
-
-## Build Arguments
-
-| ARG | Default | Description |
-|---|---|---|
-| `USER` | ibtisam | Interactive user |
-| `NEXUS_PORT` | `8081` | Nexus HTTP port — substituted in service, nginx, welcome |
 
 ## Port Substitution
 
-`__NEXUS_PORT__` is substituted at build time via `sed` in:
-- `/etc/nginx/sites-available/nexus`
-- `/etc/systemd/system/nexus.service`
-- `~/.welcome`
+`__NEXUS_PORT__` is a build-time placeholder substituted via `sed` in:
+
+| File | What changes |
+|---|---|
+| `/etc/nginx/sites-available/nexus` | `upstream nexus { server 127.0.0.1:__NEXUS_PORT__ }` |
+| `~/.welcome` | Displayed URL in the welcome banner |
+
+Port is configured directly in `/opt/sonatype-work/nexus3/etc/nexus.properties` by `install-nexus.sh`.
+The CI default is `NEXUS_PORT=8081`.
+
+## Build Arguments
+
+| ARG | CI Default | Description |
+|---|---|---|
+| `USER` | `ibtisam` | Interactive non-root user (inherited from base image) |
+| `NEXUS_PORT` | `8081` | Nexus HTTP port - substituted in nginx config, nexus.properties, welcome |
+| `BUILD_DATE` | From `docker/metadata-action` | OCI label: image creation timestamp |
+| `VCS_REF` | `github.sha` | OCI label: git commit SHA |
+
+## Local Build
+
+From the `iximiuz/rootfs/nexus/` directory:
+
+```bash
+docker build \
+  --build-arg USER="ibtisam" \
+  --build-arg NEXUS_PORT=8081 \
+  -t ghcr.io/ibtisam-iq/nexus-rootfs:latest \
+  .
+```
 
 ## Published Image
 
-```
+```bash
 docker pull ghcr.io/ibtisam-iq/nexus-rootfs:latest
 ```
 
-## Local Testing
+> **amd64 only.** Built for `linux/amd64` exclusively.
+
+## Usage in an iximiuz Playground
 
 ```bash
-docker run -d \
-  --name nexus-test \
-  --privileged \
-  --cgroupns=host \
-  -v /sys/fs/cgroup:/sys/fs/cgroup \
-  --tmpfs /tmp \
-  --tmpfs /run \
-  --tmpfs /run/lock \
-  -p 8081:80 \
-  -p 9022:22 \
-  ghcr.io/ibtisam-iq/nexus-rootfs:latest
+# Download the manifest
+curl -fsSL https://raw.githubusercontent.com/ibtisam-iq/silver-stack/main/iximiuz/manifests/nexus-server.yml \
+  -o nexus-server.yml
 
-# Check services
-docker exec nexus-test systemctl is-active lab-init nginx nexus
-
-# Get initial admin password
-docker exec nexus-test \
-  cat /opt/sonatype-work/nexus3/admin.password
-
-# Test Nginx reverse proxy
-docker exec nexus-test curl -f http://localhost/health
-
-# Nexus UI
-open http://localhost:8081
-```
-
-## Playground
-
-Individual playground manifest: [`iximiuz/manifests/nexus-server.yml`](../../manifests/nexus-server.yml)
-
-```bash
+# Create the playground
 labctl playground create --base flexbox nexus-server -f nexus-server.yml
 ```
 
-Part of the full CI/CD stack: [`iximiuz/manifests/ci-cd-stack.yml`](../../manifests/ci-cd-stack.yml)
+The playground appears under **Playgrounds → My Custom** in the iximiuz Labs dashboard.
 
-```bash
-labctl playground create --base flexbox ci-cd-stack -f ci-cd-stack.yml
+## First Login
+
+On first boot, welcome page auto-loaded, follow the steps for setup the server.
+
+![](https://github.com/ibtisam-iq/runbook/blob/main/assets/screenshots/nexus-server-welcome.png)
+
+## Boot Sequence
+
 ```
+systemd (PID 1)
+  └── lab-init.service  [oneshot]
+        Generates SSH host keys
+        Creates /run/sshd, /run/nginx
+        Fixes /opt/nexus and /opt/sonatype-work ownership
+        Creates /opt/sonatype-work/jvm-prefs
+          ↓
+  └── nginx.service     [simple, daemon off]
+        Listens on :80 → proxies to 127.0.0.1:NEXUS_PORT
+          ↓
+  └── nexus.service     [simple]
+        /opt/nexus/bin/nexus run (as nexus:nexus)
+```
+
+## Notes
+
+- **SSH** is managed by systemd inherited from the base image. Host keys are generated at each boot by `lab-init.sh`.
+- **Welcome banner** (`~/.welcome`) has `__NEXUS_PORT__` substituted at build time and is displayed on first interactive login.
+
+## Runbook
+
+Full setup docs and source references, see my runbook:
+
+  https://runbook.ibtisam-iq.com/containers/iximiuz/rootfs/setup-nexus-rootfs-image

@@ -4,7 +4,9 @@ Production-grade Jenkins LTS rootfs for iximiuz playgrounds. Boots Jenkins via s
 
 ## What It Is
 
-A child image built on top of [`ubuntu-24-04-rootfs`](../../ubuntu/README.md). On first boot, systemd starts `lab-init` → `nginx` → `jenkins` in order. Jenkins is accessible immediately on port 80 via Nginx.
+A child image built on top of [`ubuntu-24-04-rootfs`](../ubuntu/README.md). On first boot, systemd starts `lab-init` → `nginx` → `jenkins` in order. Jenkins is accessible immediately on port 80 via Nginx.
+
+![](https://github.com/ibtisam-iq/runbook/blob/main/assets/screenshots/jenkins-server-drive-config.png)
 
 > **This is a microVM rootfs for the [iximiuz Labs](https://labs.iximiuz.com) platform.** The platform mounts it as a block device and boots it with its own kernel. systemd becomes PID 1 through the platform boot process. Use `labctl` to create and access the playground - see [Usage](#usage-in-an-iximiuz-playground) below.
 
@@ -143,7 +145,13 @@ labctl playground create --base flexbox jenkins-server -f jenkins-server.yml
 
 The playground appears under **Playgrounds → My Custom** in the iximiuz Labs dashboard. The **Jenkins UI** tab opens Nginx on port 80 directly.
 
-## Sequencing
+## First Login
+
+On first boot, welcome page auto-loaded, follow the steps for setup the server.
+
+![](https://github.com/ibtisam-iq/runbook/blob/main/assets/screenshots/jenkins-server-welcome.png)
+
+## Boot Sequence
 
 ```
 Boot order (systemd):
