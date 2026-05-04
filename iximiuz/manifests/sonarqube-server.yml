@@ -1,6 +1,6 @@
 kind: playground
 title: SilverStack SonarQube Server
-description: SonarQube Community Edition on Ubuntu 24.04 with systemd, Nginx reverse proxy, and cloudflared for instant public access via Cloudflare Tunnel — no firewall rules needed.
+description: SonarQube Community Edition on Ubuntu 24.04 with systemd, Nginx reverse proxy, and cloudflared for instant public access via Cloudflare Tunnel - no firewall rules needed.
 categories:
     - linux
     - ci-cd
