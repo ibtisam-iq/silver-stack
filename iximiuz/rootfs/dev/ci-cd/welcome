@@ -16,3 +16,13 @@ Cloudflare setup steps on its welcome page to go live.
   ssh nexus-server        then follow steps → nexus.yourdomain.com
 
 Tools: arkade  jq  yq  fx  task  just  fzf  btop  cfssl  ripgrep  code-server
+
+Runbooks:
+  Stack journey & Cloudflare Tunnel
+    https://runbook.ibtisam-iq.com/self-hosted/ci-cd/iximiuz/self-hosted-cicd-stack-journey-from-ec2-to-iximiuz-labs/
+
+  Infrastructure & orchestration (manifest, nodes, provisioning)
+    https://runbook.ibtisam-iq.com/self-hosted/ci-cd/iximiuz/setup-cicd-stack-orchestration/
+
+  Post-provisioning operations (Jenkins, SonarQube, Nexus config)
+    https://runbook.ibtisam-iq.com/self-hosted/ci-cd/iximiuz/cicd-stack-operations/
