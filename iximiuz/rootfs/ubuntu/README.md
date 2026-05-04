@@ -86,6 +86,8 @@ docker build \
 docker pull ghcr.io/ibtisam-iq/ubuntu-24-04-rootfs:latest
 ```
 
+> **amd64 only.** This image is built for `linux/amd64` exclusively.
+
 ## Usage in an iximiuz Playground
 
 This image is designed to be used as a microVM rootfs, not run with `docker run`. To boot it:

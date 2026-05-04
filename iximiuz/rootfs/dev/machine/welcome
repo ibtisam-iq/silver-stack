@@ -27,4 +27,5 @@
 
   Run 'alias' to see the full list.
 
-Runbook: https://runbook.ibtisam-iq.com/containers/iximiuz/rootfs/setup-dev-machine-rootfs-image/
+  Full setup docs and source references:
+  https://runbook.ibtisam-iq.com/containers/iximiuz/rootfs/setup-dev-machine-rootfs-image

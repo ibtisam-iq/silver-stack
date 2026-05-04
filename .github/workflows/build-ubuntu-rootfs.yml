@@ -59,7 +59,7 @@ jobs:
           images: ${{ env.IMAGE_NAME }}
           labels: |
             org.opencontainers.image.licenses=MIT
-            org.opencontainers.image.base.name="ubuntu:24.04"
+            org.opencontainers.image.base.name=ubuntu:24.04
             org.opencontainers.image.url=https://github.com/ibtisam-iq/silver-stack
             org.opencontainers.image.source=https://github.com/ibtisam-iq/silver-stack
             org.opencontainers.image.vendor=Ibtisam IQ

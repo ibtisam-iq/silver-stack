@@ -55,7 +55,7 @@ jobs:
             org.opencontainers.image.url=https://github.com/ibtisam-iq/silver-stack
             org.opencontainers.image.source=https://github.com/ibtisam-iq/silver-stack
             org.opencontainers.image.vendor=Ibtisam IQ
-            org.opencontainers.image.documentation=https://blog.ibtisam-iq.com
+            org.opencontainers.image.documentation=https://runbook.ibtisam-iq.com/self-hosted/ci-cd/iximiuz/setup-cicd-stack-orchestration/#dev-cicd-machine-rootfs
             org.opencontainers.image.authors=Muhammad Ibtisam <contact@ibtisam-iq.com>
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}

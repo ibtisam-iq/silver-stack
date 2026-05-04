@@ -193,7 +193,7 @@ check_file "/usr/sbin/sshd" "SSH daemon binary"
 if sshd -t &>/dev/null; then
     echo "✓ SSH configuration: Valid"
 else
-    echo "⚠ SSH configuration: Cannot fully validate at build time (host keys absentst)"
+    echo "⚠ SSH configuration: Cannot fully validate at build time (host keys absent)"
     # FAILURES=$((FAILURES + 1))
 fi
 

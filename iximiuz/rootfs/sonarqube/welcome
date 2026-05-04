@@ -17,8 +17,7 @@ To expose SonarQube publicly via Cloudflare Tunnel:
 
   1. Go to dash.cloudflare.com/one → Networks → Connectors
   2. Create tunnel → choose Cloudflared → name it (e.g. sonarqube-lab) → save
-  3. Copy & run the install command shown:
-       sudo cloudflared service install <token>
+  3. Copy & run the install command shown:  sudo cloudflared service install <token>
   4. Add a published application route:
        Subdomain: sonar   Domain: yourdomain.com
        Service:   HTTP    URL:    localhost:80
@@ -27,3 +26,6 @@ To expose SonarQube publicly via Cloudflare Tunnel:
 Quick commands:
   sonar-status  sonar-logs  sonar-restart  sonar-start  sonar-stop
   pg-status     pg-logs     pg-restart     nginx-status nginx-logs  nginx-reload
+
+Full setup docs and source references:
+  https://runbook.ibtisam-iq.com/containers/iximiuz/rootfs/setup-sonarqube-rootfs-image

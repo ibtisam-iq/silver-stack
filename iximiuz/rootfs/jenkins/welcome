@@ -31,5 +31,7 @@ POST-SETUP ACTIONS  (run this AFTER Jenkins setup wizard):
     → Open it in browser  → Put initial admin password → Create admin username & password
     → Set its URL: Manage Jenkins → System → Jenkins URL → Save
 
-  Then install Jenkins plugins (Git, SonarQube, Docker, Nexus, etc.):
-    sudo install-plugins
+  Then install Jenkins plugins (Git, SonarQube, Docker, Nexus, etc.): sudo install-plugins
+
+Full setup docs and source references:
+  https://runbook.ibtisam-iq.com/containers/iximiuz/rootfs/setup-jenkins-rootfs-image
