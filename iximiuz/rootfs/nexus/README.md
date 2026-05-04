@@ -6,9 +6,9 @@ Production-grade Nexus 3 Community Edition rootfs for iximiuz playgrounds. Boots
 
 A child image built on top of [`ubuntu-24-04-rootfs`](../ubuntu/README.md). On first boot, systemd starts `lab-init` → `nginx` → `nexus` in order. Nexus uses its own embedded storage under `/opt/sonatype-work` - no external database required. It is accessible immediately on port 80 via Nginx.
 
-![](https://github.com/ibtisam-iq/runbook/blob/main/assets/screenshots/nexus-server-drive-config.png)
-
 > **This is a microVM rootfs for the [iximiuz Labs](https://labs.iximiuz.com) platform.** The platform mounts it as a block device and boots it with its own kernel. systemd becomes PID 1 through the platform boot process. Use `labctl` to create and access the playground - see [Usage](#usage-in-an-iximiuz-playground) below.
+
+![](https://github.com/ibtisam-iq/runbook/blob/main/assets/screenshots/nexus-server-drive-config.png)
 
 ## What's Inside
 
