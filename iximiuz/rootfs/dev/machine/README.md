@@ -8,6 +8,8 @@ A child image built on top of [`ubuntu-24-04-rootfs`](../../ubuntu/README.md). U
 
 > **This is a microVM rootfs for the [iximiuz Labs](https://labs.iximiuz.com) platform.** The platform mounts it as a block device and boots it with its own kernel. systemd becomes PID 1 through the platform boot process. Do not use `docker run` for runtime validation - use `labctl` instead (see [Usage](#usage-in-an-iximiuz-playground) below).
 
+![](https://github.com/ibtisam-iq/runbook/blob/main/assets/screenshots/dev-machine-drive-config.png)
+
 ## What's Inside
 
 | Component | Version | Install Method |
@@ -130,6 +132,8 @@ labctl playground create --base flexbox dev-machine -f dev-machine.yml
 ```
 
 The playground appears under **Playgrounds → My Custom** in the iximiuz Labs dashboard.
+
+![](https://github.com/ibtisam-iq/runbook/blob/main/assets/screenshots/dev-machine-welcome.png)
 
 ## Notes
 
