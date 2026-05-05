@@ -108,7 +108,8 @@ docker build \
   .
 ```
 
-> `BUILD_DATE` and `VCS_REF` are injected automatically by CI. Local builds do not need them - the OCI labels will be empty, which is acceptable for local testing.
+- `BUILD_DATE` and `VCS_REF` are injected automatically by CI. Local builds do not need them, the OCI labels will be empty, which is acceptable for local testing.
+- Do not add `USER root` before `EXPOSE 22`. The image intentionally ends as `USER $USER`, see [Notes](#notes) for the full explanation.
 
 ## Published Image
 
@@ -140,6 +141,15 @@ The playground appears under **Playgrounds → My Custom** in the iximiuz Labs d
 - **Docker daemon** (`docker.service`) is enabled during build and starts automatically when the VM boots via systemd - not during `docker build`.
 - **Welcome banner** (`$HOME/.welcome`) is displayed on first interactive login and permanently deleted by `~/.bashrc` logic.
 - **SSH** is inherited from the base image. The platform generates host keys at VM boot.
+- **`USER $USER` at the end of the Dockerfile is intentional and correct.**
+  The Dockerfile ends with `USER $USER` (not `USER root`) for a deliberate reason:
+  the `USER` directive only affects what user `docker run` starts the container
+  process as. For the `docker run` binary-presence check, running as `ibtisam`
+  (not root) correctly validates that all tools are accessible to the non-root
+  user. When iximiuz boots the image as a microVM, the platform mounts the
+  filesystem as a block device and boots it with its own kernel, systemd becomes
+  PID 1 independent of this directive. The `USER` field in the OCI image config
+  is completely irrelevant to the microVM boot process.
 
 ## Runbook
 
