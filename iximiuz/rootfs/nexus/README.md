@@ -86,6 +86,16 @@ docker pull ghcr.io/ibtisam-iq/nexus-rootfs:latest
 
 ## Usage in an iximiuz Playground
 
+### Option 1 - Browser UI
+
+  https://labs.iximiuz.com/playgrounds/SilverStack-nexus-server-9a3f87e9
+
+Click **Start** to run immediately, or **Configure** to adjust settings before launching.
+
+> If this URL is unavailable, use Option 2.
+
+### Option 2 - labctl manifest
+
 ```bash
 # Download the manifest
 curl -fsSL https://raw.githubusercontent.com/ibtisam-iq/silver-stack/main/iximiuz/manifests/nexus-server.yml \

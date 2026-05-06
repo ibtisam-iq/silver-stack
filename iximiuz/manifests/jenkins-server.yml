@@ -1,6 +1,8 @@
 kind: playground
 title: SilverStack Jenkins Server
-description: Jenkins LTS on Ubuntu 24.04 with systemd, Nginx reverse proxy, and cloudflared for instant public access via Cloudflare Tunnel - no firewall rules needed.
+description: >
+  Production-grade Jenkins LTS on Ubuntu 24.04 - systemd-booted,
+  Nginx-proxied, Cloudflare-ready, zero setup required.
 categories:
     - linux
     - ci-cd

@@ -121,7 +121,15 @@ docker pull ghcr.io/ibtisam-iq/dev-machine-rootfs:latest
 
 ## Usage in an iximiuz Playground
 
-This image is designed to be used as a **microVM rootfs**. The correct way to use it is via `labctl`:
+### Option 1 - Browser UI
+
+  https://labs.iximiuz.com/playgrounds/SilverStack-dev-machine-e672bcf7
+
+Click **Start** to run immediately, or **Configure** to adjust settings before launching.
+
+> If this URL is unavailable, use Option 2.
+
+### Option 2 - labctl manifest
 
 ```bash
 # Download the manifest

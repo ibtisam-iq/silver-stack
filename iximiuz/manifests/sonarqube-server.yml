@@ -1,6 +1,8 @@
 kind: playground
 title: SilverStack SonarQube Server
-description: SonarQube Community Edition on Ubuntu 24.04 with systemd, Nginx reverse proxy, and cloudflared for instant public access via Cloudflare Tunnel - no firewall rules needed.
+description: >
+  Production-grade SonarQube 26.2 CE (LTA) on Ubuntu 24.04 - systemd-booted,
+  PostgreSQL-backed, Nginx-proxied, Cloudflare-ready, zero setup required.
 categories:
     - linux
     - ci-cd

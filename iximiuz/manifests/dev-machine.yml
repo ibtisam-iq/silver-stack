@@ -1,6 +1,8 @@
 kind: playground
 title: SilverStack Dev Machine
-description: Ubuntu 24.04 DevOps workstation - pre-installed with Docker, kubectl, Helm, Terraform, AWS CLI, Ansible, and security tools. No setup needed.
+description: >
+  A fully provisioned DevOps workstation on Ubuntu 24.04 - every tool
+  pre-installed, every alias pre-wired, zero setup required.
 categories:
     - linux
 playground:

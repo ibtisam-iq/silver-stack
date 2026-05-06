@@ -1,6 +1,9 @@
 kind: playground
 title: SilverStack Nexus Server
-description: Nexus Community Edition on Ubuntu 24.04 with systemd, Nginx reverse proxy, and cloudflared for instant public access via Cloudflare Tunnel - no firewall rules needed.
+description: >
+  Production-grade Nexus Repository Manager 3 Community Edition
+  on Ubuntu 24.04 - systemd-booted, Cloudflare-ready,
+  Nginx-proxied, zero setup required.
 categories:
     - linux
     - ci-cd

@@ -1,6 +1,10 @@
 kind: playground
 title: SilverStack CI/CD Stack
-description: Custom-domain CI/CD stack with Jenkins, SonarQube, and Nexus - each service exposed via Cloudflare Tunnel with SSL on your own domain
+description: >
+  A fully composed 4-node CI/CD platform - Jenkins, SonarQube, Nexus,
+  and a Dev Machine, all running in a single Flexbox playground on a
+  shared private network. Each service is Nginx-proxied and
+  Cloudflare-ready. Zero setup required.
 categories:
     - linux
     - ci-cd
