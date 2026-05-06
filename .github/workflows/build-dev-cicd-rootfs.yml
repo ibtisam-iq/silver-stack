@@ -7,11 +7,13 @@ on:
     paths:
       - 'iximiuz/rootfs/dev/ci-cd/**'
       - '!iximiuz/rootfs/dev/ci-cd/README.md'
+      - '!iximiuz/rootfs/dev/ci-cd/CONTENT.md'
       - '.github/workflows/build-dev-cicd-rootfs.yml'
   pull_request:
     paths:
       - 'iximiuz/rootfs/dev/ci-cd/**'
       - '!iximiuz/rootfs/dev/ci-cd/README.md'
+      - '!iximiuz/rootfs/dev/ci-cd/CONTENT.md'
       - '.github/workflows/build-dev-cicd-rootfs.yml'
   workflow_dispatch:
 

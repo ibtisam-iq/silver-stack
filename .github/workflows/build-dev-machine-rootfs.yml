@@ -7,11 +7,13 @@ on:
     paths:
       - 'iximiuz/rootfs/dev/machine/**'
       - '!iximiuz/rootfs/dev/machine/README.md'
+      - '!iximiuz/rootfs/dev/machine/CONTENT.md'
       - '.github/workflows/build-dev-machine-rootfs.yml'
   pull_request:
     paths:
       - 'iximiuz/rootfs/dev/machine/**'
       - '!iximiuz/rootfs/dev/machine/README.md'
+      - '!iximiuz/rootfs/dev/machine/CONTENT.md'
       - '.github/workflows/build-dev-machine-rootfs.yml'
   workflow_dispatch:
 

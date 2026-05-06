@@ -7,11 +7,13 @@ on:
     paths:
       - 'iximiuz/rootfs/jenkins/**'
       - '!iximiuz/rootfs/jenkins/README.md'
+      - '!iximiuz/rootfs/jenkins/CONTENT.md'
       - '.github/workflows/build-jenkins-rootfs.yml'
   pull_request:
     paths:
       - 'iximiuz/rootfs/jenkins/**'
       - '!iximiuz/rootfs/jenkins/README.md'
+      - '!iximiuz/rootfs/jenkins/CONTENT.md'
       - '.github/workflows/build-jenkins-rootfs.yml'
   workflow_dispatch:
 

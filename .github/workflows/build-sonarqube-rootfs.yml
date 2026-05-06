@@ -7,11 +7,13 @@ on:
     paths:
       - 'iximiuz/rootfs/sonarqube/**'
       - '!iximiuz/rootfs/sonarqube/README.md'
+      - '!iximiuz/rootfs/sonarqube/CONTENT.md'
       - '.github/workflows/build-sonarqube-rootfs.yml'
   pull_request:
     paths:
       - 'iximiuz/rootfs/sonarqube/**'
       - '!iximiuz/rootfs/sonarqube/README.md'
+      - '!iximiuz/rootfs/sonarqube/CONTENT.md'
       - '.github/workflows/build-sonarqube-rootfs.yml'
   workflow_dispatch:
 

@@ -7,11 +7,13 @@ on:
     paths:
       - 'iximiuz/rootfs/nexus/**'
       - '!iximiuz/rootfs/nexus/README.md'
+      - '!iximiuz/rootfs/nexus/CONTENT.md'
       - '.github/workflows/build-nexus-rootfs.yml'
   pull_request:
     paths:
       - 'iximiuz/rootfs/nexus/**'
       - '!iximiuz/rootfs/nexus/README.md'
+      - '!iximiuz/rootfs/nexus/CONTENT.md'
       - '.github/workflows/build-nexus-rootfs.yml'
   workflow_dispatch:
 
