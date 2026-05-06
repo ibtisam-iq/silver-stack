@@ -37,6 +37,7 @@ playground:
           name: "Jenkins UI"
           machine: jenkins-server
           number: 80
+          access: public
     accessControl:
         canList:
             - anyone

@@ -94,14 +94,17 @@ playground:
           name: "Jenkins UI"
           machine: jenkins-server
           number: 80
+          access: public
         - kind: http-port
           name: "SonarQube UI"
           machine: sonarqube-server
           number: 80
+          access: public
         - kind: http-port
           name: "Nexus UI"
           machine: nexus-server
           number: 80
+          access: public
 
     accessControl:
         canList:
