@@ -1,0 +1,25 @@
+ibtisam-iq@192 manifests % labctl playground create --base flexbox SilverStack-CICD-Stack -f cicd-stack.yml
+Creating playground from /Users/ibtisam-iq/gitHub/silver-stack/iximiuz/manifests/cicd-stack.yml
+Playground URL: https://labs.iximiuz.com/playgrounds/SilverStack-CICD-Stack-1766a8a1
+SilverStack-CICD-Stack-1766a8a1
+
+ibtisam-iq@192 manifests % labctl playground create --base flexbox SilverStack-jenkins-server -f jenkins-server.yml
+Creating playground from /Users/ibtisam-iq/gitHub/silver-stack/iximiuz/manifests/jenkins-server.yml
+Playground URL: https://labs.iximiuz.com/playgrounds/SilverStack-jenkins-server-63fe430c
+SilverStack-jenkins-server-63fe430c
+
+ibtisam-iq@192 manifests % labctl playground create --base flexbox SilverStack-sonarqube-server -f sonarqube-server.yml
+Creating playground from /Users/ibtisam-iq/gitHub/silver-stack/iximiuz/manifests/sonarqube-server.yml
+Playground URL: https://labs.iximiuz.com/playgrounds/SilverStack-sonarqube-server-7761f36f
+SilverStack-sonarqube-server-7761f36f
+
+ibtisam-iq@192 manifests % labctl playground create --base flexbox SilverStack-nexus-server -f nexus-server.yml
+Creating playground from /Users/ibtisam-iq/gitHub/silver-stack/iximiuz/manifests/nexus-server.yml
+Playground URL: https://labs.iximiuz.com/playgrounds/SilverStack-nexus-server-9a3f87e9
+SilverStack-nexus-server-9a3f87e9
+
+ibtisam-iq@192 manifests % labctl playground create --base flexbox SilverStack-dev-machine -f dev-machine.yml
+Creating playground from /Users/ibtisam-iq/gitHub/silver-stack/iximiuz/manifests/dev-machine.yml
+Playground URL: https://labs.iximiuz.com/playgrounds/SilverStack-dev-machine-e672bcf7
+SilverStack-dev-machine-e672bcf7
+ibtisam-iq@192 manifests %
