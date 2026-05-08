@@ -25,7 +25,8 @@ alias kexec='kubectl exec -it'
 
 # ─── Docker aliases ──────────────────────────────────────────────────────────
 alias d='docker'
-complete -F $(complete -p docker 2>/dev/null | awk '{print $(NF-1)}') d 2>/dev/null || truealias dps='docker ps'
+complete -F $(complete -p docker 2>/dev/null | awk '{print $(NF-1)}') d 2>/dev/null || true
+alias dps='docker ps'
 alias dpsa='docker ps -a'
 alias di='docker images'
 alias dex='docker exec -it'
