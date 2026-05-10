@@ -63,7 +63,7 @@ guacamole/
 | `GUAC_VERSION`           | `1.6.0`          | Guacamole server + client version                         |
 | `MYSQL_CONNECTOR_VERSION`| `9.2.0`          | MySQL Connector/J version                                 |
 | `GUAC_PORT`              | `8080`           | Tomcat HTTP port — substituted in nginx.conf + welcome    |
-| `RDP_USER`               | `devuser`        | XRDP desktop username — pre-seeded in DB at build time    |
+| `RDP_USER`               | `musk`        | XRDP desktop username — pre-seeded in DB at build time    |
 | `RDP_PORT`               | `3389`           | XRDP listen port                                          |
 | `DB_NAME`                | `guacamole_db`   | MariaDB database name                                     |
 | `DB_USER`                | `guacamole_user` | MariaDB username                                          |
@@ -80,7 +80,7 @@ All variables have safe defaults. Override via `docker run -e` or iximiuz env:
 | `RDP_PASS`               | `openssl rand` 12 chars           | XRDP desktop user password    |
 | `DB_NAME`                | `guacamole_db`                    | Override MariaDB database name|
 | `DB_USER`                | `guacamole_user`                  | Override MariaDB username      |
-| `RDP_USER`               | `devuser`                         | Override XRDP desktop user    |
+| `RDP_USER`               | `musk`                         | Override XRDP desktop user    |
 | `RDP_PORT`               | `3389`                            | Override XRDP port            |
 | `GUAC_PORT`              | `8080`                            | Override Tomcat port          |
 
@@ -122,7 +122,7 @@ docker build \
   --build-arg GUAC_VERSION=1.6.0 \
   --build-arg MYSQL_CONNECTOR_VERSION=9.2.0 \
   --build-arg GUAC_PORT=8080 \
-  --build-arg RDP_USER=devuser \
+  --build-arg RDP_USER=musk \
   --build-arg RDP_PORT=3389 \
   --build-arg DB_NAME=guacamole_db \
   --build-arg DB_USER=guacamole_user \

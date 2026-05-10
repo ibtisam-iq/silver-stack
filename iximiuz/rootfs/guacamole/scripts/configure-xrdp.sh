@@ -9,7 +9,7 @@ set -euo pipefail
 #   - Fixes /run/xrdp tmpfiles for boot persistence
 #   - Sets security_layer=rdp (avoids SSL mismatch with guacd)
 # Arguments:
-#   $1 - RDP_USER  (desktop user, e.g. devuser)
+#   $1 - RDP_USER  (desktop user, e.g. musk)
 #   $2 - RDP_PORT  (default: 3389)
 # Author: Muhammad Ibtisam Iqbal
 #######################################################################

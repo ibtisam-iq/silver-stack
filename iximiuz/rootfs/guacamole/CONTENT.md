@@ -44,7 +44,7 @@ systemd
 
 - **Guacamole Username:** guacadmin
 - **Guacamole Password:** guacadmin
-- **RDP User:** devuser
+- **RDP User:** musk
 - **RDP Password:** generated at boot (printed in `lab-init` journal)
 
 ## Resources

@@ -61,7 +61,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     GUAC_VERSION=${GUAC_VERSION:-1.6.0} \
     MYSQL_CONNECTOR_VERSION=${MYSQL_CONNECTOR_VERSION:-9.2.0} \
     GUAC_PORT=${GUAC_PORT:-8080} \
-    RDP_USER=${RDP_USER:-devuser} \
+    RDP_USER=${RDP_USER:-musk} \
     RDP_PORT=${RDP_PORT:-3389} \
     DB_NAME=${DB_NAME:-guacamole_db} \
     DB_USER=${DB_USER:-guacamole_user} \
@@ -322,7 +322,7 @@ set -euo pipefail
 #   - Fixes /run/xrdp tmpfiles for boot persistence
 #   - Sets security_layer=rdp (avoids SSL mismatch with guacd)
 # Arguments:
-#   $1 - RDP_USER  (desktop user, e.g. devuser)
+#   $1 - RDP_USER  (desktop user, e.g. musk)
 #   $2 - RDP_PORT  (default: 3389)
 # Author: Muhammad Ibtisam Iqbal
 #######################################################################
@@ -589,7 +589,7 @@ set -euo pipefail
 #   DB_NAME         - MariaDB database name       (default: guacamole_db)
 #   DB_USER         - MariaDB user                (default: guacamole_user)
 #   DB_PASS         - MariaDB password            (default: auto-generated)
-#   RDP_USER        - XRDP desktop username       (default: devuser)
+#   RDP_USER        - XRDP desktop username       (default: musk)
 #   RDP_PASS        - XRDP desktop password       (default: auto-generated)
 #   RDP_PORT        - XRDP port                   (default: 3389)
 #   GUAC_PORT       - Tomcat/Guacamole port       (default: 8080)
@@ -602,7 +602,7 @@ log() { echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"; }
 DB_NAME="${DB_NAME:-guacamole_db}"
 DB_USER="${DB_USER:-guacamole_user}"
 DB_PASS="${DB_PASS:-$(openssl rand -base64 24 | tr -dc 'a-zA-Z0-9' | head -c 20)}"
-RDP_USER="${RDP_USER:-devuser}"
+RDP_USER="${RDP_USER:-musk}"
 RDP_PASS="${RDP_PASS:-$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12)}"
 RDP_PORT="${RDP_PORT:-3389}"
 GUAC_PORT="${GUAC_PORT:-8080}"
@@ -1184,7 +1184,7 @@ guacamole/
 | `GUAC_VERSION`           | `1.6.0`          | Guacamole server + client version                         |
 | `MYSQL_CONNECTOR_VERSION`| `9.2.0`          | MySQL Connector/J version                                 |
 | `GUAC_PORT`              | `8080`           | Tomcat HTTP port — substituted in nginx.conf + welcome    |
-| `RDP_USER`               | `devuser`        | XRDP desktop username — pre-seeded in DB at build time    |
+| `RDP_USER`               | `musk`        | XRDP desktop username — pre-seeded in DB at build time    |
 | `RDP_PORT`               | `3389`           | XRDP listen port                                          |
 | `DB_NAME`                | `guacamole_db`   | MariaDB database name                                     |
 | `DB_USER`                | `guacamole_user` | MariaDB username                                          |
@@ -1201,7 +1201,7 @@ All variables have safe defaults. Override via `docker run -e` or iximiuz env:
 | `RDP_PASS`               | `openssl rand` 12 chars           | XRDP desktop user password    |
 | `DB_NAME`                | `guacamole_db`                    | Override MariaDB database name|
 | `DB_USER`                | `guacamole_user`                  | Override MariaDB username      |
-| `RDP_USER`               | `devuser`                         | Override XRDP desktop user    |
+| `RDP_USER`               | `musk`                         | Override XRDP desktop user    |
 | `RDP_PORT`               | `3389`                            | Override XRDP port            |
 | `GUAC_PORT`              | `8080`                            | Override Tomcat port          |
 
@@ -1243,7 +1243,7 @@ docker build \
   --build-arg GUAC_VERSION=1.6.0 \
   --build-arg MYSQL_CONNECTOR_VERSION=9.2.0 \
   --build-arg GUAC_PORT=8080 \
-  --build-arg RDP_USER=devuser \
+  --build-arg RDP_USER=musk \
   --build-arg RDP_PORT=3389 \
   --build-arg DB_NAME=guacamole_db \
   --build-arg DB_USER=guacamole_user \
