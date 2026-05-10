@@ -1,0 +1,4 @@
+# Allow tomcat to read guacamole.properties
+# Allow xrdp to manage its socket
+# Allow lab-init.service operations at boot
+tomcat  ALL=(root) NOPASSWD: /bin/chown tomcat\:tomcat /etc/guacamole/guacamole.properties

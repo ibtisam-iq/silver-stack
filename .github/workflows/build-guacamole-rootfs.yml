@@ -1,0 +1,87 @@
+name: Build Guacamole Rootfs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'iximiuz/rootfs/guacamole/**'
+      - '!iximiuz/rootfs/guacamole/README.md'
+      - '!iximiuz/rootfs/guacamole/CONTENT.md'
+      - '.github/workflows/build-guacamole-rootfs.yml'
+  pull_request:
+    paths:
+      - 'iximiuz/rootfs/guacamole/**'
+      - '!iximiuz/rootfs/guacamole/README.md'
+      - '!iximiuz/rootfs/guacamole/CONTENT.md'
+      - '.github/workflows/build-guacamole-rootfs.yml'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/guacamole-rootfs
+
+jobs:
+  build-and-push:
+    name: Build & Push Guacamole Rootfs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # QEMU (cross-compilation) is intentionally omitted.
+      # This rootfs targets AMD64 exclusively.
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          labels: |
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.base.name=ghcr.io/ibtisam-iq/ubuntu-24-04-rootfs:latest
+            org.opencontainers.image.url=https://github.com/ibtisam-iq/silver-stack
+            org.opencontainers.image.source=https://github.com/ibtisam-iq/silver-stack
+            org.opencontainers.image.vendor=Ibtisam IQ
+            org.opencontainers.image.documentation=https://runbook.ibtisam-iq.com/containers/iximiuz/rootfs/setup-guacamole-rootfs-image
+            org.opencontainers.image.authors=Muhammad Ibtisam
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=1.6.0,enable={{is_default_branch}}
+            type=sha,prefix=sha-,format=short
+            type=raw,value={{date 'YYYY-MM-DD'}}
+
+      - name: Build and push
+        id: build-and-push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./iximiuz/rootfs/guacamole
+          file: ./iximiuz/rootfs/guacamole/Dockerfile
+          platforms: linux/amd64
+          load: false
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            USER=ibtisam
+            GUAC_PORT=8080
+            RDP_PORT=3389
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Image digest
+        run: echo "Pushed ${{ env.IMAGE_NAME }}@${{ steps.build-and-push.outputs.digest }}"

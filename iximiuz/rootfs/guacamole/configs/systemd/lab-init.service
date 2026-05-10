@@ -1,0 +1,17 @@
+[Unit]
+Description=Guacamole Lab Runtime Initialization
+Documentation=https://github.com/ibtisam-iq/silver-stack
+DefaultDependencies=no
+After=local-fs.target sysinit.target
+Before=ssh.service mariadb.service tomcat10.service guacd.service xrdp.service nginx.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/guacamole-scripts/lab-init.sh
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=180
+
+[Install]
+WantedBy=multi-user.target

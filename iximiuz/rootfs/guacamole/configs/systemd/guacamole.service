@@ -1,0 +1,19 @@
+[Unit]
+Description=Apache Guacamole Daemon (guacd)
+Documentation=https://guacamole.apache.org/
+After=network.target lab-init.service
+Requires=lab-init.service
+
+[Service]
+Type=forking
+PIDFile=/var/run/guacd.pid
+ExecStart=/usr/local/sbin/guacd -f
+ExecStop=/bin/kill -TERM $MAINPID
+Restart=on-failure
+RestartSec=5
+User=daemon
+Group=daemon
+Environment=HOME=/var/lib/guacd
+
+[Install]
+WantedBy=multi-user.target

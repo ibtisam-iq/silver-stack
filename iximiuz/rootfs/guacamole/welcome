@@ -1,0 +1,21 @@
+
+╔══════════════════════════════════════════════════════════════════════╗
+║        Apache Guacamole — Browser-based Desktop Playground           ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  Guacamole UI    http://localhost:__GUAC_PORT__/guacamole            ║
+║  Login           guacadmin / guacadmin                               ║
+║  RDP Desktop     __RDP_USER__ (password shown in lab-init logs)      ║
+║                                                                      ║
+║  Cloudflare Tunnel (public access with SSL):                         ║
+║    cloudflared tunnel --url http://localhost:__GUAC_PORT__           ║
+║                                                                      ║
+╠══════════════════════════════════════════════════════════════════════╣
+║  Quick commands:                                                     ║
+║    guac-status     — status of all 6 services                        ║
+║    guac-logs       — Tomcat live logs                                ║
+║    guacd-logs      — guacd live logs                                 ║
+║    xrdp-logs       — XRDP live logs                                  ║
+║    guac-db         — MySQL shell → guacamole_db                      ║
+║    ports           — show all listening ports                        ║
+╚══════════════════════════════════════════════════════════════════════╝
