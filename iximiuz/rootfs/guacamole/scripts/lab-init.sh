@@ -159,11 +159,28 @@ sed -i "s/__DB_PASS__/${DB_PASS}/" /etc/guacamole/guacamole.properties
 chown tomcat:tomcat /etc/guacamole/guacamole.properties
 log "✓ guacamole.properties updated"
 
-# ── 9. Stop the temporary MariaDB (systemd will restart it properly) ──────────
+# ── 9. Stop the temporary MariaDB cleanly ────────────────────────────────────
+# IMPORTANT: mysqld_safe spawns a child mariadbd. kill $MARIADB_PID only kills
+# the wrapper — child stays running, holds ibdata1 + aria_log_control locks.
+# mysqladmin shutdown talks via socket and kills both cleanly.
 log "Stopping temporary MariaDB (systemd will manage it from here)..."
-kill "${MARIADB_PID}" 2>/dev/null || true
-sleep 2
-log "✓ Temporary MariaDB stopped"
+mysqladmin shutdown 2>/dev/null || kill "${MARIADB_PID}" 2>/dev/null || true
+
+for i in {1..30}; do
+    if ! pgrep -x mariadbd > /dev/null 2>&1; then
+        log "✓ MariaDB fully stopped (${i}s)"
+        break
+    fi
+    log "Waiting for mariadbd to exit... (${i}/30)"
+    sleep 1
+done
+
+# Final safety net — force kill if still running after 30s
+if pgrep -x mariadbd > /dev/null 2>&1; then
+    log "Force killing mariadbd..."
+    pkill -9 -x mariadbd 2>/dev/null || true
+    sleep 2
+fi
 
 # ── Print credentials for lab users ──────────────────────────────────────────
 log "============================================================"
