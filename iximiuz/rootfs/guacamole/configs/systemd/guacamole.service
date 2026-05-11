@@ -7,7 +7,7 @@ Requires=lab-init.service
 [Service]
 Type=forking
 PIDFile=/var/run/guacd.pid
-ExecStart=/usr/local/sbin/guacd -f
+ExecStart=/usr/local/sbin/guacd -f -b 0.0.0.0
 ExecStop=/bin/kill -TERM $MAINPID
 Restart=on-failure
 RestartSec=5

@@ -77,6 +77,14 @@ RUN systemctl enable lab-init && \
     systemctl enable xrdp-sesman && \
     systemctl enable nginx
 
+# ── Phase 6b: Disable unnecessary desktop services ───────────────────────────
+RUN systemctl disable lightdm cups cups-browsed avahi-daemon whoopsie 2>/dev/null || true
+
+# ── Phase 6c: MariaDB override for Docker/overlay2 compatibility ──────────────
+RUN mkdir -p /etc/systemd/system/mariadb.service.d
+COPY configs/systemd/mariadb.override.conf \
+     /etc/systemd/system/mariadb.service.d/override.conf
+
 # ── Phase 7: Install cloudflared ─────────────────────────────────────────────
 RUN /opt/guacamole-scripts/install-cloudflared.sh
 
