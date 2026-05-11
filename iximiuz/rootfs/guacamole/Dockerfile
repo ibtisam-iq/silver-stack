@@ -80,10 +80,16 @@ RUN systemctl enable lab-init && \
 # ── Phase 6b: Disable unnecessary desktop services ───────────────────────────
 RUN systemctl disable lightdm cups cups-browsed avahi-daemon whoopsie 2>/dev/null || true
 
-# ── Phase 6c: MariaDB override for Docker/overlay2 compatibility ──────────────
-RUN mkdir -p /etc/systemd/system/mariadb.service.d
-COPY configs/systemd/mariadb.override.conf \
-     /etc/systemd/system/mariadb.service.d/override.conf
+# ── Phase 6c: Docker/overlay2 compatibility overrides ────────────────────────
+# guacd: bind 0.0.0.0 so Tomcat can reach it via IPv4 (127.0.0.1) in Docker.
+#        On iximiuz block devices this is also safe — 0.0.0.0 accepts both.
+# MariaDB: innodb_use_native_aio=0 + fsync for overlay2 I/O safety.
+RUN mkdir -p /etc/systemd/system/guacd.service.d && \
+    mkdir -p /etc/mysql/conf.d
+COPY configs/systemd/guacd.override.conf \
+     /etc/systemd/system/guacd.service.d/override.conf
+COPY configs/mariadb/docker-compat.cnf \
+     /etc/mysql/conf.d/docker-compat.cnf
 
 # ── Phase 7: Install cloudflared ─────────────────────────────────────────────
 RUN /opt/guacamole-scripts/install-cloudflared.sh
