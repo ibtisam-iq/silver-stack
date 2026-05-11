@@ -22,9 +22,17 @@ fi
 alias guac-status='sudo systemctl status guacd tomcat10 mariadb xrdp nginx --no-pager'
 alias guac-restart='sudo systemctl restart guacd tomcat10'
 alias guac-logs='sudo journalctl -u tomcat10 -f'
+alias guac-logs-init='sudo journalctl -u lab-init --no-pager | grep -E "RDP user|Guacamole|CREDENTIALS|ERROR|WARNING"'
 alias guacd-logs='sudo journalctl -u guacd -f'
 alias xrdp-logs='sudo journalctl -u xrdp -f'
 alias nginx-logs='sudo tail -f /var/log/nginx/access.log /var/log/nginx/error.log'
+alias nginx-status='sudo systemctl status nginx --no-pager'
+alias nginx-reload='sudo systemctl reload nginx'
+
+# MariaDB shortcuts
+alias db-status='sudo systemctl status mariadb --no-pager'
+alias db-logs='sudo journalctl -u mariadb -f'
+alias db-restart='sudo systemctl restart mariadb'
 
 # Quick DB access
 alias guac-db='sudo mysql guacamole_db'

@@ -1,21 +1,38 @@
+Welcome to SilverStack Guacamole Lab! 🖥️
 
-╔══════════════════════════════════════════════════════════════════════╗
-║        Apache Guacamole — Browser-based Desktop Playground           ║
-╠══════════════════════════════════════════════════════════════════════╣
-║                                                                      ║
-║  Guacamole UI    http://localhost:__GUAC_PORT__/guacamole            ║
-║  Login           guacadmin / guacadmin                               ║
-║  RDP Desktop     __RDP_USER__ (password shown in lab-init logs)      ║
-║                                                                      ║
-║  Cloudflare Tunnel (public access with SSL):                         ║
-║    cloudflared tunnel --url http://localhost:__GUAC_PORT__           ║
-║                                                                      ║
-╠══════════════════════════════════════════════════════════════════════╣
-║  Quick commands:                                                     ║
-║    guac-status     — status of all 6 services                        ║
-║    guac-logs       — Tomcat live logs                                ║
-║    guacd-logs      — guacd live logs                                 ║
-║    xrdp-logs       — XRDP live logs                                  ║
-║    guac-db         — MySQL shell → guacamole_db                      ║
-║    ports           — show all listening ports                        ║
-╚══════════════════════════════════════════════════════════════════════╝
+Apache Guacamole is running internally at http://localhost:__GUAC_PORT__/guacamole
+Nginx reverse proxy is listening on port 80 (internal)
+MariaDB database is running on port 3306 (internal)
+guacd proxy daemon is listening on port 4822 (internal)
+XRDP desktop server is listening on port 3389 (internal)
+
+Tools:
+- cloudflared         Cloudflare Tunnel for public access
+- guacd 1.6.0         Guacamole proxy daemon (compiled from source)
+- tomcat10            Apache Tomcat 10 (Jakarta EE)
+- mariadb             Production-grade MySQL-compatible database
+- xrdp                Remote Desktop Protocol server
+- xfce4               Lightweight desktop environment
+
+Default Guacamole credentials:    guacadmin  /  guacadmin
+Default RDP credentials:
+  Username: __RDP_USER__   Password: (shown in lab-init logs → run: guac-logs-init)
+
+To expose Guacamole publicly via Cloudflare Tunnel:
+
+  1. Go to dash.cloudflare.com/one → Networks → Connectors
+  2. Create tunnel → choose Cloudflared → name it (e.g. guacamole-lab) → save
+  3. Copy & run the install command shown:  sudo cloudflared service install <token>
+  4. Add a published application route:
+       Subdomain: desktop   Domain: yourdomain.com
+       Service:   HTTP      URL:    localhost:80
+  5. Guacamole is now live at https://desktop.yourdomain.com/guacamole
+
+Quick commands:
+  guac-status      guac-logs        guac-logs-init   guac-restart
+  guacd-logs       xrdp-logs        nginx-logs       nginx-status     nginx-reload
+  db-status        db-logs          db-restart       guac-db          guac-connections
+  guac-conf        guac-props       nginx-conf       ports
+
+Full setup docs and source references:
+  https://runbook.ibtisam-iq.com/containers/iximiuz/rootfs/setup-guacamole-rootfs-image

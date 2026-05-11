@@ -80,6 +80,7 @@ jobs:
             USER=ibtisam
             GUAC_PORT=8080
             RDP_PORT=3389
+            RDP_USER=musk
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
