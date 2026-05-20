@@ -36,6 +36,7 @@ TRIVY_VERSION="0.64.1"
 GITLEAKS_VERSION="v8.28.0"
 COSIGN_VERSION="v3.0.3"
 SYFT_VERSION="v1.26.1"
+EKSCTL_VERSION="v0.226.0"
 
 # =============================================================================
 # PHASE 1: Base system packages
@@ -382,9 +383,29 @@ curl -fsSL https://raw.githubusercontent.com/anchore/syft/main/install.sh \
 syft --version
 
 # =============================================================================
-# PHASE 26: Python tools via pip
+# PHASE 26: eksctl — official GitHub release (eksctl-io/eksctl)
+# https://docs.aws.amazon.com/eks/latest/eksctl/installation.html
 # =============================================================================
-log_phase "PHASE 26: Python tools via pip"
+log_phase "PHASE 26: eksctl ${EKSCTL_VERSION}"
+
+# For ARM systems, set ARCH to: arm64, armv6 or armv7
+ARCH=amd64
+PLATFORM=$(uname -s)_${ARCH}
+
+curl -sLO "https://github.com/eksctl-io/eksctl/releases/download/${EKSCTL_VERSION}/eksctl_${PLATFORM}.tar.gz"
+
+# Verify checksum
+curl -sL "https://github.com/eksctl-io/eksctl/releases/download/${EKSCTL_VERSION}/eksctl_checksums.txt" \
+  | grep "${PLATFORM}" | sha256sum --check
+
+tar -xzf "eksctl_${PLATFORM}.tar.gz" -C /tmp && rm "eksctl_${PLATFORM}.tar.gz"
+install -m 0755 /tmp/eksctl /usr/local/bin && rm /tmp/eksctl
+eksctl version
+
+# =============================================================================
+# PHASE 27: Python tools via pip
+# =============================================================================
+log_phase "PHASE 27: Python tools via pip"
 
 pip3 install --break-system-packages \
   pre-commit \
@@ -397,9 +418,9 @@ ansible --version
 yamllint --version
 
 # =============================================================================
-# PHASE 27: Final cleanup
+# PHASE 28: Final cleanup
 # =============================================================================
-log_phase "PHASE 27: Final cleanup"
+log_phase "PHASE 28: Final cleanup"
 
 apt-get autoremove -y
 apt-get clean

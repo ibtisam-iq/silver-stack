@@ -26,6 +26,7 @@ A child image built on top of [`ubuntu-24-04-rootfs`](../../ubuntu/README.md). U
 | k9s | v0.50.10 | GitHub release |
 | kubectx / kubens | v0.9.5 | GitHub release |
 | stern | v1.33.0 | GitHub release |
+| eksctl | v0.226.0 | GitHub release |
 | Terraform | Latest | HashiCorp apt repo |
 | GitHub CLI | Latest | Official GitHub apt repo |
 | AWS CLI | v2 (latest) | Official installer |
@@ -56,7 +57,7 @@ dev/machine/
 ├── welcome                            # Welcome banner (copied to $HOME/.welcome)
 └── scripts/
     ├── install-docker.sh              # Docker CE - official Docker apt repo
-    ├── install-tools.sh               # Full DevOps toolchain - 27 phases
+    ├── install-tools.sh               # Full DevOps toolchain - 28 phases
     ├── install-cloudflared.sh         # Cloudflare Tunnel CLI
     ├── setup-completions.sh           # System-wide bash + zsh completions
     └── customize-bashrc.sh            # Aliases and helpers → ~/.bashrc

@@ -9,7 +9,7 @@
 
   RUNTIMES        java 21   python3    node LTS    npm    maven
   CONTAINERS      docker    docker-compose    buildx    skopeo    dive    hadolint
-  KUBERNETES      kubectl   helm    kustomize    k9s    kubectx    kubens    stern
+  KUBERNETES      kubectl   helm    kustomize    k9s    kubectx    kubens    stern    eksctl
   INFRA & CI/CD   terraform aws cli v2  ansible  ansible-lint  pre-commit  yamllint  gh
   SECURITY        trivy     gitleaks    cosign    syft
   DATA & SEARCH   jq        yq          fzf       rg
