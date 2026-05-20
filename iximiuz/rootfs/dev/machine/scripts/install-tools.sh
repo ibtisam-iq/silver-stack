@@ -36,7 +36,7 @@ TRIVY_VERSION="0.64.1"
 GITLEAKS_VERSION="v8.28.0"
 COSIGN_VERSION="v3.0.3"
 SYFT_VERSION="v1.26.1"
-EKSCTL_VERSION="v0.207.0"
+EKSCTL_VERSION="v0.226.0"
 
 # =============================================================================
 # PHASE 1: Base system packages
@@ -384,17 +384,22 @@ syft --version
 
 # =============================================================================
 # PHASE 26: eksctl — official GitHub release (eksctl-io/eksctl)
-# https://eksctl.io/installation/
+# https://docs.aws.amazon.com/eks/latest/eksctl/installation.html
 # =============================================================================
 log_phase "PHASE 26: eksctl ${EKSCTL_VERSION}"
 
-ARCH="$(uname -m)"
-[[ "$ARCH" == "x86_64" ]] && EKSCTL_ARCH="amd64" || EKSCTL_ARCH="arm64"
+# For ARM systems, set ARCH to: arm64, armv6 or armv7
+ARCH=amd64
+PLATFORM=$(uname -s)_${ARCH}
 
-curl -fsSL "https://github.com/eksctl-io/eksctl/releases/download/${EKSCTL_VERSION}/eksctl_Linux_${EKSCTL_ARCH}.tar.gz" \
-  -o /tmp/eksctl.tar.gz
-tar -xzf /tmp/eksctl.tar.gz -C /usr/local/bin eksctl
-chmod +x /usr/local/bin/eksctl && rm /tmp/eksctl.tar.gz
+curl -sLO "https://github.com/eksctl-io/eksctl/releases/download/${EKSCTL_VERSION}/eksctl_${PLATFORM}.tar.gz"
+
+# Verify checksum
+curl -sL "https://github.com/eksctl-io/eksctl/releases/download/${EKSCTL_VERSION}/eksctl_checksums.txt" \
+  | grep "${PLATFORM}" | sha256sum --check
+
+tar -xzf "eksctl_${PLATFORM}.tar.gz" -C /tmp && rm "eksctl_${PLATFORM}.tar.gz"
+install -m 0755 /tmp/eksctl /usr/local/bin && rm /tmp/eksctl
 eksctl version
 
 # =============================================================================
