@@ -36,6 +36,7 @@ TRIVY_VERSION="0.64.1"
 GITLEAKS_VERSION="v8.28.0"
 COSIGN_VERSION="v3.0.3"
 SYFT_VERSION="v1.26.1"
+EKSCTL_VERSION="v0.207.0"
 
 # =============================================================================
 # PHASE 1: Base system packages
@@ -382,9 +383,24 @@ curl -fsSL https://raw.githubusercontent.com/anchore/syft/main/install.sh \
 syft --version
 
 # =============================================================================
-# PHASE 26: Python tools via pip
+# PHASE 26: eksctl — official GitHub release (eksctl-io/eksctl)
+# https://eksctl.io/installation/
 # =============================================================================
-log_phase "PHASE 26: Python tools via pip"
+log_phase "PHASE 26: eksctl ${EKSCTL_VERSION}"
+
+ARCH="$(uname -m)"
+[[ "$ARCH" == "x86_64" ]] && EKSCTL_ARCH="amd64" || EKSCTL_ARCH="arm64"
+
+curl -fsSL "https://github.com/eksctl-io/eksctl/releases/download/${EKSCTL_VERSION}/eksctl_Linux_${EKSCTL_ARCH}.tar.gz" \
+  -o /tmp/eksctl.tar.gz
+tar -xzf /tmp/eksctl.tar.gz -C /usr/local/bin eksctl
+chmod +x /usr/local/bin/eksctl && rm /tmp/eksctl.tar.gz
+eksctl version
+
+# =============================================================================
+# PHASE 27: Python tools via pip
+# =============================================================================
+log_phase "PHASE 27: Python tools via pip"
 
 pip3 install --break-system-packages \
   pre-commit \
@@ -397,9 +413,9 @@ ansible --version
 yamllint --version
 
 # =============================================================================
-# PHASE 27: Final cleanup
+# PHASE 28: Final cleanup
 # =============================================================================
-log_phase "PHASE 27: Final cleanup"
+log_phase "PHASE 28: Final cleanup"
 
 apt-get autoremove -y
 apt-get clean
