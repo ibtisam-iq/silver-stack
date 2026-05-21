@@ -418,9 +418,50 @@ ansible --version
 yamllint --version
 
 # =============================================================================
-# PHASE 28: Final cleanup
+# PHASE 28: Database CLI Clients — official Ubuntu repos
+# https://dev.mysql.com/doc/refman/en/mysql.html
+# https://www.postgresql.org/docs/current/app-psql.html
+# https://sqlite.org/cli.html
+# https://redis.io/docs/ui/cli/
 # =============================================================================
-log_phase "PHASE 28: Final cleanup"
+log_phase "PHASE 28: Database CLI Clients"
+
+apt-get update
+apt-get install -y --no-install-recommends \
+  mysql-client \
+  postgresql-client \
+  sqlite3 \
+  redis-tools
+
+mysql --version
+psql --version
+sqlite3 --version
+redis-cli --version
+apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# =============================================================================
+# PHASE 29: mongosh — official MongoDB apt repo
+# https://www.mongodb.com/docs/mongodb-shell/install/
+# =============================================================================
+log_phase "PHASE 29: mongosh"
+
+curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc \
+  | gpg --dearmor -o /etc/apt/keyrings/mongodb-server-8.0.gpg
+chmod 644 /etc/apt/keyrings/mongodb-server-8.0.gpg
+
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/mongodb-server-8.0.gpg] \
+  https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse" \
+  > /etc/apt/sources.list.d/mongodb-org-8.0.list
+
+apt-get update
+apt-get install -y --no-install-recommends mongodb-mongosh
+mongosh --version
+apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# =============================================================================
+# PHASE 30: Final cleanup
+# =============================================================================
+log_phase "PHASE 30: Final cleanup"
 
 apt-get autoremove -y
 apt-get clean
