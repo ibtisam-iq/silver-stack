@@ -1,6 +1,6 @@
 # Dev Machine Rootfs
 
-Production-grade DevOps workstation rootfs for iximiuz playgrounds. Boots via Ubuntu 24.04 with the complete SilverStack DevOps toolchain pre-installed - Docker, Kubernetes, Terraform, AWS CLI, security tools, and more. No setup required.
+Production-grade DevOps workstation rootfs for iximiuz playgrounds. Boots via Ubuntu 24.04 with the complete SilverStack DevOps toolchain pre-installed - Docker, Kubernetes, Terraform, AWS CLI, security tools, database CLI clients, and more. No setup required.
 
 ## What It Is
 
@@ -48,6 +48,11 @@ A child image built on top of [`ubuntu-24-04-rootfs`](../../ubuntu/README.md). U
 | nmap | Latest | `apt` |
 | socat | Latest | `apt` |
 | cloudflared | Latest | Cloudflare apt repo |
+| mysql-client | Latest | `apt` |
+| postgresql-client | Latest | `apt` |
+| sqlite3 | Latest | `apt` |
+| redis-tools | Latest | `apt` |
+| mongosh | Latest | Official MongoDB apt repo |
 
 ## Directory Structure
 
@@ -57,7 +62,7 @@ dev/machine/
 ├── welcome                            # Welcome banner (copied to $HOME/.welcome)
 └── scripts/
     ├── install-docker.sh              # Docker CE - official Docker apt repo
-    ├── install-tools.sh               # Full DevOps toolchain - 28 phases
+    ├── install-tools.sh               # Full DevOps toolchain - 30 phases
     ├── install-cloudflared.sh         # Cloudflare Tunnel CLI
     ├── setup-completions.sh           # System-wide bash + zsh completions
     └── customize-bashrc.sh            # Aliases and helpers → ~/.bashrc

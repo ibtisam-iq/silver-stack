@@ -14,6 +14,7 @@
   SECURITY        trivy     gitleaks    cosign    syft
   DATA & SEARCH   jq        yq          fzf       rg
   NETWORKING      nmap      openssl     ssh       socat        cloudflared
+  DB CLIENTS      mysql     psql        sqlite3   redis-cli    mongosh
 
   Pre-defined shortcuts:
 
