@@ -1,0 +1,93 @@
+# =============================================================================
+# File   : kodekloud-eks-cluster-eksctl.yaml
+# Repo   : ibtisam-iq/silver-stack  (patches/)
+# Origin : runbook/iac/terraform/provisioning/eks-on-kodekloud-aws-playground.md
+# =============================================================================
+#
+# PURPOSE
+# -------
+# eksctl ClusterConfig for creating an EKS cluster on a KodeKloud AWS
+# playground lab account, written to work around the SCP restrictions that
+# block standard cluster and node-group creation.
+#
+# WHY THIS FILE EXISTS
+# --------------------
+# KodeKloud lab SCPs enforce two hard restrictions:
+#   1. iam:PassRole is allowed ONLY for roles named "eksClusterRole" or
+#      "eksNodeRole" — any other name returns implicitDeny.
+#   2. eks:CreateNodegroup is blocked unconditionally for all tools.
+#
+# This config patches around both restrictions:
+#   - serviceRoleARN points explicitly to "eksClusterRole" (whitelisted name)
+#   - withOIDC is false  — setting it true during create triggers
+#     UpdateAddon → iam:PassRole on vpc-cni, which fails and aborts the
+#     entire operation.  Associate OIDC separately after the cluster is up.
+#   - managedNodeGroups is empty — eksctl creates managed node groups via
+#     eks:CreateNodegroup (blocked).  Use self-managed nodes via the AL2023
+#     CloudFormation template instead.
+#   - autoModeConfig is disabled — it also triggers CreateNodegroup.
+#   - authenticationMode is API_AND_CONFIG_MAP — keeps both the legacy
+#     aws-auth ConfigMap path AND the newer access-entry path available
+#     for joining self-managed nodes.  Setting only API means aws-auth is
+#     silently ignored, which is a common "nodes stuck Unauthorized" trap.
+#
+# USAGE
+# -----
+#   # Step 0 — run kodekloud-eks-iam-roles.tf first (creates eksClusterRole)
+#
+#   # Step 1 — fill in your AWS account ID, then create the cluster
+#   eksctl create cluster -f kodekloud-eks-cluster-eksctl.yaml
+#
+#   # Step 2 — associate OIDC provider AFTER cluster is Active
+#   eksctl utils associate-iam-oidc-provider \
+#     --cluster ibtisam-iq-eks-cluster \
+#     --region us-east-1 \
+#     --approve
+#
+#   # Step 3 — provision self-managed worker nodes via CloudFormation
+#   # (see the full runbook for the AL2023 Track B steps)
+#
+# FULL RUNBOOK
+# ------------
+# https://github.com/ibtisam-iq/runbook/blob/main/iac/terraform/provisioning/eks-on-kodekloud-aws-playground.md
+# =============================================================================
+
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: ibtisam-iq-eks-cluster
+  region: us-east-1
+
+iam:
+  # Must be the exact whitelisted role name — any other name is denied by the SCP.
+  serviceRoleARN: arn:aws:iam::<account-id>:role/eksClusterRole
+
+  # MUST be false during create — withOIDC: true triggers UpdateAddon on vpc-cni
+  # which calls iam:PassRole and fails the whole operation on KodeKloud.
+  # Run `eksctl utils associate-iam-oidc-provider` as a separate step afterward.
+  withOIDC: false
+
+# Keeps both join paths available for self-managed nodes:
+#   - API_AND_CONFIG_MAP  → can use either access entries OR aws-auth ConfigMap
+#   - API only            → aws-auth is silently ignored (nodes stay Unauthorized)
+accessConfig:
+  authenticationMode: API_AND_CONFIG_MAP
+
+# Declare core addons explicitly so eksctl does not attempt to attach IAM roles
+# to them during cluster creation (which would trigger iam:PassRole).
+addons:
+  - name: vpc-cni
+    version: latest
+  - name: kube-proxy
+    version: latest
+  - name: coredns
+    version: latest
+
+# MUST stay empty — eks:CreateNodegroup is blocked unconditionally by the SCP.
+# Use self-managed worker nodes via the AL2023 CloudFormation template instead.
+managedNodeGroups: []
+
+# MUST be disabled — enabling Auto Mode triggers CreateNodegroup and fails.
+autoModeConfig:
+  enabled: false
