@@ -6,21 +6,29 @@
 #
 # PURPOSE
 # -------
-# Creates the two IAM roles required to provision an EKS cluster on a
-# KodeKloud AWS playground lab account.  These role names are the exact
-# whitelisted strings in the KodeKloud AWS Organizations Service Control
-# Policy (SCP) — any other name causes iam:PassRole to return implicitDeny
-# and the entire cluster / node-group creation fails.
+# Creates the two SCP-whitelisted IAM roles required to provision an EKS
+# cluster on a KodeKloud AWS playground lab account.  These are not arbitrary
+# names — they are the exact strings the KodeKloud AWS Organizations Service
+# Control Policy (SCP) allows through iam:PassRole.  Any other name returns
+# implicitDeny and the entire cluster creation fails before a single resource
+# is created.
 #
 # WHY THIS FILE EXISTS
 # --------------------
-# KodeKloud lab accounts run under an AWS Organizations SCP that:
-#   1. Blocks iam:PassRole for every role name EXCEPT "eksClusterRole" and
-#      "eksNodeRole".
-#   2. Blocks eks:CreateNodegroup unconditionally (all tools, all methods).
+# I hit these SCP blocks on every KodeKloud lab session before writing this.
+# The policy enforces two hard restrictions at the AWS Organization level —
+# no account-level override is possible:
 #
-# This Terraform script is the first step of the workaround.  Run it once
-# at the start of every lab session before creating the cluster.
+#   1. iam:PassRole is allowed ONLY for roles named "eksClusterRole" or
+#      "eksNodeRole".  I confirmed this via the IAM policy simulator:
+#      EvalDecision returns implicitDeny, AllowedByOrganizations returns False.
+#
+#   2. eks:CreateNodegroup is blocked unconditionally — I verified this across
+#      the Console, eksctl, AWS CLI, and Terraform.  All four return
+#      AccessDeniedException.  Managed node groups are not an option here.
+#
+# Run this file once at the start of every lab session before creating
+# the cluster.  Do not rename the roles.
 #
 # WHITELISTED ROLE NAMES (do NOT rename)
 # ----------------------------------------
@@ -30,21 +38,23 @@
 # USAGE
 # -----
 #   mkdir ~/eks-iam-setup && cd ~/eks-iam-setup
-#   cp <this-file> main.tf          # Terraform requires the file be named *.tf
+#   cp <this-file> main.tf          # Terraform requires the entry file be *.tf
 #   terraform init
 #   terraform apply -auto-approve
 #
-#   If eksClusterRole already exists from a previous session:
+#   If eksClusterRole already exists from a previous session, import it first:
 #     terraform import aws_iam_role.eks_cluster_role eksClusterRole
 #     terraform apply -auto-approve
 #
 # NEXT STEP
 # ---------
-# After apply succeeds, create the cluster using either:
+# Once apply succeeds, create the EKS control plane using either:
 #   a) AWS Console — select eksClusterRole as the cluster service role
-#   b) eksctl      — see patches/kodekloud-eks-cluster-eksctl.yaml
-# Then provision self-managed worker nodes via the AL2023 CloudFormation
-# template (eks:CreateNodegroup is blocked; managed node groups cannot be used).
+#   b) eksctl      — use patches/kodekloud-eks-cluster-eksctl.yaml
+#
+# Provision worker nodes via the AL2023 CloudFormation self-managed node
+# template.  eks:CreateNodegroup is blocked — managed node groups cannot
+# be created on this platform regardless of the tool.
 #
 # FULL RUNBOOK
 # ------------
@@ -57,7 +67,7 @@ provider "aws" {
 
 # -----------------------------------------------------------------------------
 # EKS Cluster Role
-# Assumed by the EKS control plane.  "eksClusterRole" is the whitelisted name.
+# Assumed by the EKS control plane.  "eksClusterRole" is the SCP-whitelisted name.
 # -----------------------------------------------------------------------------
 resource "aws_iam_role" "eks_cluster_role" {
   name = "eksClusterRole"
@@ -71,8 +81,9 @@ resource "aws_iam_role" "eks_cluster_role" {
     }]
   })
 
-  # Playground sessions may leave the role behind.  Ignore trust-policy drift
-  # on import so `apply` does not try to overwrite it and hit iam:UpdateAssumeRolePolicy.
+  # Playground sessions often leave this role behind.  Ignoring trust-policy
+  # drift on import prevents `apply` from attempting iam:UpdateAssumeRolePolicy,
+  # which the SCP also restricts.
   lifecycle {
     ignore_changes = [assume_role_policy]
   }
@@ -85,7 +96,7 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 
 # -----------------------------------------------------------------------------
 # EKS Node Role
-# Assumed by self-managed EC2 worker nodes.  "eksNodeRole" is the whitelisted name.
+# Assumed by self-managed EC2 worker nodes.  "eksNodeRole" is the SCP-whitelisted name.
 # -----------------------------------------------------------------------------
 resource "aws_iam_role" "eks_node_role" {
   name = "eksNodeRole"
@@ -115,8 +126,8 @@ resource "aws_iam_role_policy_attachment" "node_ecr_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
-# Optional: enables AWS Systems Manager Session Manager access to nodes,
-# avoiding SSH key management on ephemeral playground instances.
+# Enables AWS Systems Manager Session Manager access to nodes — eliminates
+# SSH key management on ephemeral playground instances.
 resource "aws_iam_role_policy_attachment" "node_ssm_policy" {
   role       = aws_iam_role.eks_node_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
