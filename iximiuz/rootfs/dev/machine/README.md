@@ -121,9 +121,9 @@ docker build \
 - `BUILD_DATE` and `VCS_REF` are injected automatically by CI. Local builds do not need them, the OCI labels will be empty, which is acceptable for local testing.
 - Do not add `USER root` before `EXPOSE 22`. The image intentionally ends as `USER $USER`, see [Notes](#notes) for the full explanation.
 
-## Local Testing with `act`
+## Local CI Workflow Testing with `act`
 
-The CI workflow can be run locally using [`act`](https://github.com/nektos/act) without pushing to GHCR and without any secrets. From the root of the `silver-stack` repository:
+The full CI workflow can be run locally using [`act`](https://github.com/nektos/act) — this builds the image through the same pipeline steps that run on GitHub Actions, without pushing to GHCR and without any secrets. From the root of the `silver-stack` repository:
 
 ```bash
 act push \
@@ -140,6 +140,8 @@ docker images | grep dev-machine-rootfs
 ```
 
 ## Published Image
+
+The image is built and pushed to GHCR automatically via GitHub Actions on every push to `main`. No manual push is involved.
 
 ```bash
 docker pull ghcr.io/ibtisam-iq/dev-machine-rootfs:latest
