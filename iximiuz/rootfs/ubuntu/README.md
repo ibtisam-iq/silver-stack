@@ -80,7 +80,27 @@ docker build \
   .
 ```
 
+## Local CI Workflow Testing with `act`
+
+The full CI workflow can be run locally using [`act`](https://github.com/nektos/act) — this builds the image through the same pipeline steps that run on GitHub Actions, without pushing to GHCR and without any secrets. From the root of the `silver-stack` repository:
+
+```bash
+act push \
+  -W .github/workflows/build-ubuntu-rootfs.yml \
+  --no-cache-server
+```
+
+The image builds and loads into the local Docker daemon. No GITHUB_TOKEN or GHCR credentials are required.
+
+### Verify the Built Image
+
+```bash
+docker images | grep ubuntu-24-04-rootfs
+```
+
 ## Published Image
+
+The image is built and pushed to GHCR automatically via GitHub Actions on every push to `main`. No manual push is involved.
 
 ```
 docker pull ghcr.io/ibtisam-iq/ubuntu-24-04-rootfs:latest
