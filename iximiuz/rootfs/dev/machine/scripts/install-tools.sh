@@ -37,6 +37,8 @@ GITLEAKS_VERSION="v8.28.0"
 COSIGN_VERSION="v3.0.3"
 SYFT_VERSION="v1.26.1"
 EKSCTL_VERSION="v0.226.0"
+ACT_VERSION="v0.2.89"
+HELMFILE_VERSION="v1.5.2"
 
 # =============================================================================
 # PHASE 1: Base system packages
@@ -459,9 +461,56 @@ mongosh --version
 apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # =============================================================================
-# PHASE 30: Final cleanup
+# PHASE 30: act — GitHub Actions local runner
+# https://github.com/nektos/act/releases/tag/v0.2.89
 # =============================================================================
-log_phase "PHASE 30: Final cleanup"
+log_phase "PHASE 30: act ${ACT_VERSION}"
+
+curl -fsSL "https://github.com/nektos/act/releases/download/${ACT_VERSION}/act_Linux_x86_64.tar.gz" \
+  -o /tmp/act.tar.gz
+tar -xzf /tmp/act.tar.gz -C /usr/local/bin act
+chmod +x /usr/local/bin/act
+rm /tmp/act.tar.gz
+act --version
+
+# =============================================================================
+# PHASE 31: helmfile — Helm release orchestrator
+# https://github.com/helmfile/helmfile/releases/tag/v1.5.2
+# =============================================================================
+log_phase "PHASE 31: helmfile ${HELMFILE_VERSION}"
+
+curl -fsSL "https://github.com/helmfile/helmfile/releases/download/${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION#v}_linux_amd64.tar.gz" \
+  -o /tmp/helmfile.tar.gz
+tar -xzf /tmp/helmfile.tar.gz -C /usr/local/bin helmfile
+chmod +x /usr/local/bin/helmfile
+rm /tmp/helmfile.tar.gz
+helmfile version
+
+# =============================================================================
+# PHASE 32: helm-diff plugin — required by helmfile
+# https://github.com/databus23/helm-diff
+# =============================================================================
+log_phase "PHASE 32: helm-diff plugin"
+
+helm plugin install https://github.com/databus23/helm-diff
+helm plugin list
+
+# =============================================================================
+# PHASE 33: skaffold — latest stable binary
+# https://skaffold.dev/docs/install/
+# =============================================================================
+log_phase "PHASE 33: skaffold (latest stable)"
+
+curl -fsSL https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 \
+  -o /tmp/skaffold
+install -m 0755 /tmp/skaffold /usr/local/bin/skaffold
+rm /tmp/skaffold
+skaffold version
+
+# =============================================================================
+# PHASE 34: Final cleanup
+# =============================================================================
+log_phase "PHASE 34: Final cleanup"
 
 apt-get autoremove -y
 apt-get clean
