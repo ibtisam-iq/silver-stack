@@ -34,6 +34,10 @@ A child image built on top of [`ubuntu-24-04-rootfs`](../../ubuntu/README.md). U
 | ansible-lint | Latest | `pip3` |
 | pre-commit | Latest | `pip3` |
 | yamllint | Latest | `pip3` |
+| act | v0.2.89 | GitHub release |
+| helmfile | v1.5.2 | GitHub release |
+| helm-diff | Latest (via `helm plugin install`) | Helm plugin |
+| skaffold | Latest stable | Official GCS binary |
 | Skopeo | Latest | `apt` |
 | dive | v0.13.1 | GitHub release |
 | hadolint | v2.12.0 | GitHub release |
@@ -62,7 +66,7 @@ dev/machine/
 ├── welcome                            # Welcome banner (copied to $HOME/.welcome)
 └── scripts/
     ├── install-docker.sh              # Docker CE - official Docker apt repo
-    ├── install-tools.sh               # Full DevOps toolchain - 30 phases
+    ├── install-tools.sh               # Full DevOps toolchain - 35 phases
     ├── install-cloudflared.sh         # Cloudflare Tunnel CLI
     ├── setup-completions.sh           # System-wide bash + zsh completions
     └── customize-bashrc.sh            # Aliases and helpers → ~/.bashrc
