@@ -48,6 +48,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata
+        if: ${{ !env.ACT }}
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -74,6 +75,7 @@ jobs:
           platforms: linux/amd64
           load: ${{ !!env.ACT }}
           push: ${{ !env.ACT && github.event_name != 'pull_request' }}
+          tags: ${{ env.ACT && format('{0}:local', env.IMAGE_NAME) || steps.meta.outputs.tags }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
