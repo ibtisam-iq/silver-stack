@@ -121,6 +121,24 @@ docker build \
 - `BUILD_DATE` and `VCS_REF` are injected automatically by CI. Local builds do not need them, the OCI labels will be empty, which is acceptable for local testing.
 - Do not add `USER root` before `EXPOSE 22`. The image intentionally ends as `USER $USER`, see [Notes](#notes) for the full explanation.
 
+## Local Testing with `act`
+
+The CI workflow can be run locally using [`act`](https://github.com/nektos/act) without pushing to GHCR and without any secrets. From the root of the `silver-stack` repository:
+
+```bash
+act push \
+  -W .github/workflows/build-dev-machine-rootfs.yml \
+  --no-cache-server
+```
+
+The image builds and loads into the local Docker daemon. No GITHUB_TOKEN or GHCR credentials are required.
+
+### Verify the Built Image
+
+```bash
+docker images | grep dev-machine-rootfs
+```
+
 ## Published Image
 
 ```bash
