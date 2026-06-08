@@ -461,23 +461,10 @@ mongosh --version
 apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # =============================================================================
-# PHASE 30: Final cleanup
-# =============================================================================
-log_phase "PHASE 30: Final cleanup"
-
-apt-get autoremove -y
-apt-get clean
-rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-log_info "============================================"
-log_info "All tools installed successfully."
-log_info "============================================"
-
-# =============================================================================
-# PHASE 31: act — GitHub Actions local runner
+# PHASE 30: act — GitHub Actions local runner
 # https://github.com/nektos/act/releases/tag/v0.2.89
 # =============================================================================
-log_phase "PHASE 31: act ${ACT_VERSION}"
+log_phase "PHASE 30: act ${ACT_VERSION}"
 
 curl -fsSL "https://github.com/nektos/act/releases/download/${ACT_VERSION}/act_Linux_x86_64.tar.gz" \
   -o /tmp/act.tar.gz
@@ -487,10 +474,10 @@ rm /tmp/act.tar.gz
 act --version
 
 # =============================================================================
-# PHASE 32: helmfile — Helm release orchestrator
+# PHASE 31: helmfile — Helm release orchestrator
 # https://github.com/helmfile/helmfile/releases/tag/v1.5.2
 # =============================================================================
-log_phase "PHASE 32: helmfile ${HELMFILE_VERSION}"
+log_phase "PHASE 31: helmfile ${HELMFILE_VERSION}"
 
 curl -fsSL "https://github.com/helmfile/helmfile/releases/download/${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION#v}_linux_amd64.tar.gz" \
   -o /tmp/helmfile.tar.gz
@@ -500,19 +487,19 @@ rm /tmp/helmfile.tar.gz
 helmfile version
 
 # =============================================================================
-# PHASE 33: helm-diff plugin — required by helmfile
+# PHASE 32: helm-diff plugin — required by helmfile
 # https://github.com/databus23/helm-diff
 # =============================================================================
-log_phase "PHASE 33: helm-diff plugin"
+log_phase "PHASE 32: helm-diff plugin"
 
 helm plugin install https://github.com/databus23/helm-diff
 helm plugin list
 
 # =============================================================================
-# PHASE 34: skaffold — latest stable binary
+# PHASE 33: skaffold — latest stable binary
 # https://skaffold.dev/docs/install/
 # =============================================================================
-log_phase "PHASE 34: skaffold (latest stable)"
+log_phase "PHASE 33: skaffold (latest stable)"
 
 curl -fsSL https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 \
   -o /tmp/skaffold
@@ -521,9 +508,9 @@ rm /tmp/skaffold
 skaffold version
 
 # =============================================================================
-# PHASE 35: Final cleanup
+# PHASE 34: Final cleanup
 # =============================================================================
-log_phase "PHASE 35: Final cleanup"
+log_phase "PHASE 34: Final cleanup"
 
 apt-get autoremove -y
 apt-get clean

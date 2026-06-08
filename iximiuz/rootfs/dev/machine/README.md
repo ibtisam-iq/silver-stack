@@ -66,7 +66,7 @@ dev/machine/
 ├── welcome                            # Welcome banner (copied to $HOME/.welcome)
 └── scripts/
     ├── install-docker.sh              # Docker CE - official Docker apt repo
-    ├── install-tools.sh               # Full DevOps toolchain - 35 phases
+    ├── install-tools.sh               # Full DevOps toolchain - 34 phases
     ├── install-cloudflared.sh         # Cloudflare Tunnel CLI
     ├── setup-completions.sh           # System-wide bash + zsh completions
     └── customize-bashrc.sh            # Aliases and helpers → ~/.bashrc
