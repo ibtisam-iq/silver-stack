@@ -67,5 +67,5 @@ variable "bastion_instance_type" {
 variable "bastion_key_name" {
   description = "Name given to the AWS Key Pair created for the bastion host"
   type        = string
-  default     = "silver-stack-bastion-key"
+  default     = "silver-stack-eks-bastion-key"
 }
