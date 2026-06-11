@@ -19,7 +19,7 @@ variable "environment" {
 variable "project_name" {
   description = "Short project identifier — used as prefix for all resource names"
   type        = string
-  default     = "silver-stack"
+  default     = "silver-stack-eks"
 }
 
 # ---- VPC ---------------------------------------------------
