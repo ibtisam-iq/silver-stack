@@ -11,7 +11,7 @@ Tools:
 
 Default Nexus credentials:
   Username: admin
-  Password: cat /opt/sonatype-work/nexus3/admin.password  (first login only)
+  Password: sudo cat /opt/sonatype-work/nexus3/admin.password  (first login only)
 
 To expose Nexus publicly via Cloudflare Tunnel:
 
