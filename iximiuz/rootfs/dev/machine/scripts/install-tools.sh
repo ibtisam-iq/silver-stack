@@ -516,9 +516,10 @@ log_phase "PHASE 34: lychee ${LYCHEE_VERSION}"
 
 curl -fsSL "https://github.com/lycheeverse/lychee/releases/download/lychee-${LYCHEE_VERSION}/lychee-x86_64-unknown-linux-gnu.tar.gz" \
   -o /tmp/lychee.tar.gz
-tar -xzf /tmp/lychee.tar.gz -C /usr/local/bin lychee
-chmod +x /usr/local/bin/lychee
-rm /tmp/lychee.tar.gz
+mkdir -p /tmp/lychee-extract
+tar -xzf /tmp/lychee.tar.gz -C /tmp/lychee-extract
+find /tmp/lychee-extract -maxdepth 2 -type f -name 'lychee*' | head -1 | xargs -I{} install -m 0755 {} /usr/local/bin/lychee
+rm -rf /tmp/lychee.tar.gz /tmp/lychee-extract
 lychee --version
 
 # =============================================================================
