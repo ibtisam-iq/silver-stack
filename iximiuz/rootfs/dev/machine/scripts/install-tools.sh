@@ -39,6 +39,7 @@ SYFT_VERSION="v1.26.1"
 EKSCTL_VERSION="v0.226.0"
 ACT_VERSION="v0.2.89"
 HELMFILE_VERSION="v1.5.2"
+LYCHEE_VERSION="v0.24.2"
 
 # =============================================================================
 # PHASE 1: Base system packages
@@ -508,9 +509,22 @@ rm /tmp/skaffold
 skaffold version
 
 # =============================================================================
-# PHASE 34: Final cleanup
+# PHASE 34: lychee — fast link checker
+# https://github.com/lycheeverse/lychee/releases/tag/lychee-v0.24.2
 # =============================================================================
-log_phase "PHASE 34: Final cleanup"
+log_phase "PHASE 34: lychee ${LYCHEE_VERSION}"
+
+curl -fsSL "https://github.com/lycheeverse/lychee/releases/download/lychee-${LYCHEE_VERSION}/lychee-${LYCHEE_VERSION}-x86_64-unknown-linux-gnu.tar.gz" \
+  -o /tmp/lychee.tar.gz
+tar -xzf /tmp/lychee.tar.gz -C /usr/local/bin lychee
+chmod +x /usr/local/bin/lychee
+rm /tmp/lychee.tar.gz
+lychee --version
+
+# =============================================================================
+# PHASE 35: Final cleanup
+# =============================================================================
+log_phase "PHASE 35: Final cleanup"
 
 apt-get autoremove -y
 apt-get clean
