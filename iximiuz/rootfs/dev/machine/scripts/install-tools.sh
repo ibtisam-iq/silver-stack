@@ -514,7 +514,7 @@ skaffold version
 # =============================================================================
 log_phase "PHASE 34: lychee ${LYCHEE_VERSION}"
 
-curl -fsSL "https://github.com/lycheeverse/lychee/releases/download/lychee-${LYCHEE_VERSION}/lychee-${LYCHEE_VERSION}-x86_64-unknown-linux-gnu.tar.gz" \
+curl -fsSL "https://github.com/lycheeverse/lychee/releases/download/lychee-${LYCHEE_VERSION}/lychee-x86_64-unknown-linux-gnu.tar.gz" \
   -o /tmp/lychee.tar.gz
 tar -xzf /tmp/lychee.tar.gz -C /usr/local/bin lychee
 chmod +x /usr/local/bin/lychee
