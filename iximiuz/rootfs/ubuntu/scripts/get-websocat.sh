@@ -16,5 +16,5 @@ case "$(uname -m)" in
     ;;
 esac
 
-curl -sLo /usr/local/bin/websocat "https://github.com/vi/websocat/releases/download/v${WEBSOCAT_VERSION}/websocat.${WS_ARCH}"
+curl -fsLo /usr/local/bin/websocat "https://github.com/vi/websocat/releases/download/v${WEBSOCAT_VERSION}/websocat.${WS_ARCH}"
 chmod 755 /usr/local/bin/websocat

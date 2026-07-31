@@ -62,7 +62,7 @@ ubuntu/
 | ARG | Default | Description |
 |---|---|---|
 | `USER` | `ibtisam` | Non-root interactive user to create |
-| `BTOP_VERSION` | `1.4.4` | btop release version |
+| `BTOP_VERSION` | `1.4.7` | btop release version (1.4.7 or newer; see `scripts/get-btop.sh`) |
 | `CFSSL_VERSION` | `1.6.5` | cfssl release version |
 | `WEBSOCAT_VERSION` | `1.14.1` | websocat release version |
 | `ARKADE_BIN_DIR` | `/usr/local/bin` | Installation path for arkade |
@@ -73,7 +73,7 @@ ubuntu/
 docker build \
   --build-arg USER="ibtisam" \
   --build-arg ARKADE_BIN_DIR="/usr/local/bin" \
-  --build-arg BTOP_VERSION="1.4.4" \
+  --build-arg BTOP_VERSION="1.4.7" \
   --build-arg CFSSL_VERSION="1.6.5" \
   --build-arg WEBSOCAT_VERSION="1.14.1" \
   -t ghcr.io/ibtisam-iq/ubuntu-24-04-rootfs:latest \

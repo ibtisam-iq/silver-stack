@@ -1,6 +1,8 @@
 #!/bin/sh
 set -eu
 
+# The platform supplies this binary at boot. Don't add ConditionPathExists: the path is
+# absent at build time, so the unit would be skipped silently rather than fail loudly.
 cat <<EOF > /etc/systemd/system/examiner.service
 [Unit]
 Description=Examiner

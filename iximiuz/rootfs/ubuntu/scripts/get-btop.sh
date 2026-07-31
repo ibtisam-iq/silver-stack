@@ -18,7 +18,8 @@ esac
 
 DIR=$(mktemp -d)
 
-curl -Ls "https://github.com/aristocratos/btop/releases/download/v${BTOP_VERSION}/btop-${BTOP_ARCH}-linux-musl.tbz" | tar -xjf - -C "${DIR}"
+# Asset name and compression changed upstream; this URL is v1.4.7+ only.
+curl -fLs "https://github.com/aristocratos/btop/releases/download/v${BTOP_VERSION}/btop-${BTOP_ARCH}-unknown-linux-musl.tar.gz" | tar -xzf - -C "${DIR}"
 
 cd "${DIR}/btop"
 make install

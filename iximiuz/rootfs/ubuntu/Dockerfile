@@ -22,6 +22,9 @@ COPY --from=ubuntu:22.04 /usr/local/sbin/unminimize /usr/local/sbin/unminimize
 
 # udev is needed for booting a "real" VM, setting up the ttyS0 console properly
 # kmod is needed for modprobing modules
+
+# The rm of /.dockerenv can't be confirmed with `docker run` (the runtime recreates it),
+# and `echo ""` leaves a 1-byte machine-id, which systemd still treats as unset.
 RUN <<EOF
 set -eu
 
@@ -104,6 +107,8 @@ rm -f /etc/ssh/ssh_host_*
 EOF
 
 
+# No examiner binary here by design; the platform supplies it at boot and the unit below
+# runs it. Don't drop either line, and don't add ConditionPathExists to that unit.
 COPY examiner* /usr/local/bin
 RUN --mount=type=bind,source=scripts,target=/tmp/scripts /tmp/scripts/set-up-systemd-examiner-service.sh
 
