@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # Dev Machine Rootfs — Tool Installation Script
-# Ubuntu 24.04 LTS | Official sources only | Pinned versions (March 2026)
+# Ubuntu 24.04 LTS | Official sources only | Pinned versions (August 2026)
 # =============================================================================
 set -euo pipefail
 
@@ -22,23 +22,24 @@ log_phase() { echo -e "\n${BLUE}=== $1 ===${NC}\n"; }
 # =============================================================================
 # PINNED VERSIONS — bump these to upgrade
 # =============================================================================
-K9S_VERSION="v0.50.10"
-KUBECTX_VERSION="v0.9.5"
-STERN_VERSION="v1.33.0"
-KUSTOMIZE_VERSION="v5.7.1"
-JQ_VERSION="1.8.1"
-YQ_VERSION="v4.46.1"
-FZF_VERSION="0.65.2"
-RG_VERSION="14.1.1"
+K8S_MINOR="v1.36"
+K9S_VERSION="v0.51.0"
+KUBECTX_VERSION="v0.11.0"
+STERN_VERSION="v1.34.0"
+KUSTOMIZE_VERSION="v5.8.1"
+JQ_VERSION="1.8.2"
+YQ_VERSION="v4.53.3"
+FZF_VERSION="0.74.2"
+RG_VERSION="15.2.0"
 DIVE_VERSION="v0.13.1"
-HADOLINT_VERSION="v2.12.0"
-TRIVY_VERSION="0.64.1"
-GITLEAKS_VERSION="v8.28.0"
-COSIGN_VERSION="v3.0.3"
-SYFT_VERSION="v1.26.1"
-EKSCTL_VERSION="v0.226.0"
+HADOLINT_VERSION="v2.15.1"
+TRIVY_VERSION="0.72.0"
+GITLEAKS_VERSION="v8.30.1"
+COSIGN_VERSION="v3.1.2"
+SYFT_VERSION="v1.50.0"
+EKSCTL_VERSION="v0.229.0"
 ACT_VERSION="v0.2.89"
-HELMFILE_VERSION="v1.5.2"
+HELMFILE_VERSION="v1.7.2"
 LYCHEE_VERSION="v0.24.2"
 
 # =============================================================================
@@ -116,14 +117,14 @@ log_phase "PHASE 5: Docker CE ... Installed via install-docker.sh already"
 # PHASE 6: kubectl — official Kubernetes apt repo
 # https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
 # =============================================================================
-log_phase "PHASE 6: kubectl"
+log_phase "PHASE 6: kubectl ${K8S_MINOR}"
 
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key \
+curl -fsSL "https://pkgs.k8s.io/core:/stable:/${K8S_MINOR}/deb/Release.key" \
   | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
 echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] \
-  https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /" \
+  https://pkgs.k8s.io/core:/stable:/${K8S_MINOR}/deb/ /" \
   > /etc/apt/sources.list.d/kubernetes.list
 
 apt-get update
@@ -334,21 +335,22 @@ hadolint --version
 
 # =============================================================================
 # PHASE 22: trivy — official Aqua apt repo
-# https://aquasecurity.github.io/trivy/latest/getting-started/installation/
+# https://trivy.dev/latest/getting-started/installation/
 # =============================================================================
 log_phase "PHASE 22: trivy v${TRIVY_VERSION}"
 
-curl -fsSL https://aquasecurity.github.io/trivy-repo/deb/public.key \
+curl -fsSL https://get.trivy.dev/deb/public.key \
   | gpg --dearmor -o /etc/apt/keyrings/trivy.gpg
 chmod 644 /etc/apt/keyrings/trivy.gpg
 
+# The 'generic' suite is the one Aqua keeps current; the per-release suites
+# (noble, jammy, ...) lag behind by a release or two.
 echo "deb [signed-by=/etc/apt/keyrings/trivy.gpg] \
-  https://aquasecurity.github.io/trivy-repo/deb \
-  $(lsb_release -sc) main" \
+  https://get.trivy.dev/deb generic main" \
   > /etc/apt/sources.list.d/trivy.list
 
 apt-get update
-apt-get install -y trivy
+apt-get install -y "trivy=${TRIVY_VERSION}"
 trivy --version
 apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -463,7 +465,7 @@ apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # =============================================================================
 # PHASE 30: act — GitHub Actions local runner
-# https://github.com/nektos/act/releases/tag/v0.2.89
+# https://github.com/nektos/act/releases
 # =============================================================================
 log_phase "PHASE 30: act ${ACT_VERSION}"
 
@@ -476,7 +478,7 @@ act --version
 
 # =============================================================================
 # PHASE 31: helmfile — Helm release orchestrator
-# https://github.com/helmfile/helmfile/releases/tag/v1.5.2
+# https://github.com/helmfile/helmfile/releases
 # =============================================================================
 log_phase "PHASE 31: helmfile ${HELMFILE_VERSION}"
 
@@ -510,7 +512,7 @@ skaffold version
 
 # =============================================================================
 # PHASE 34: lychee — fast link checker
-# https://github.com/lycheeverse/lychee/releases/tag/lychee-v0.24.2
+# https://github.com/lycheeverse/lychee/releases
 # =============================================================================
 log_phase "PHASE 34: lychee ${LYCHEE_VERSION}"
 

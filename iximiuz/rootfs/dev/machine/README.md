@@ -20,13 +20,13 @@ A child image built on top of [`ubuntu-24-04-rootfs`](../../ubuntu/README.md). U
 | Node.js | LTS | NodeSource repo |
 | Maven | Latest | `apt` |
 | Docker | CE (latest) | Official Docker apt repo |
-| kubectl | v1.32 | Official Kubernetes apt repo |
+| kubectl | v1.36 | Official Kubernetes apt repo |
 | Helm | Latest | Official install script |
-| Kustomize | v5.7.1 | GitHub release |
-| k9s | v0.50.10 | GitHub release |
-| kubectx / kubens | v0.9.5 | GitHub release |
-| stern | v1.33.0 | GitHub release |
-| eksctl | v0.226.0 | GitHub release |
+| Kustomize | v5.8.1 | GitHub release |
+| k9s | v0.51.0 | GitHub release |
+| kubectx / kubens | v0.11.0 | GitHub release |
+| stern | v1.34.0 | GitHub release |
+| eksctl | v0.229.0 | GitHub release |
 | Terraform | Latest | HashiCorp apt repo |
 | GitHub CLI | Latest | Official GitHub apt repo |
 | AWS CLI | v2 (latest) | Official installer |
@@ -35,21 +35,21 @@ A child image built on top of [`ubuntu-24-04-rootfs`](../../ubuntu/README.md). U
 | pre-commit | Latest | `pip3` |
 | yamllint | Latest | `pip3` |
 | act | v0.2.89 | GitHub release |
-| helmfile | v1.5.2 | GitHub release |
+| helmfile | v1.7.2 | GitHub release |
 | helm-diff | Latest (via `helm plugin install`) | Helm plugin |
 | skaffold | Latest stable | Official GCS binary |
 | lychee | v0.24.2 | GitHub release |
 | Skopeo | Latest | `apt` |
 | dive | v0.13.1 | GitHub release |
-| hadolint | v2.12.0 | GitHub release |
-| Trivy | v0.64.1 | Aqua apt repo |
-| Gitleaks | v8.28.0 | GitHub release |
-| cosign | v3.0.3 | GitHub release |
-| syft | v1.26.1 | Official install script |
-| jq | v1.8.1 | GitHub release |
-| yq | v4.46.1 | GitHub release |
-| fzf | v0.65.2 | GitHub release |
-| rg (ripgrep) | v14.1.1 | GitHub release |
+| hadolint | v2.15.1 | GitHub release |
+| Trivy | v0.72.0 | Aqua apt repo (pinned) |
+| Gitleaks | v8.30.1 | GitHub release |
+| cosign | v3.1.2 | GitHub release |
+| syft | v1.50.0 | Official install script |
+| jq | v1.8.2 | GitHub release |
+| yq | v4.53.3 | GitHub release |
+| fzf | v0.74.2 | GitHub release |
+| rg (ripgrep) | v15.2.0 | GitHub release |
 | nmap | Latest | `apt` |
 | socat | Latest | `apt` |
 | cloudflared | Latest | Cloudflare apt repo |
