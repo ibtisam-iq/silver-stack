@@ -107,8 +107,8 @@ The image is built and pushed to GHCR automatically via GitHub Actions on every 
 docker pull ghcr.io/ibtisam-iq/ubuntu-24-04-rootfs:latest
 ```
 
-> [!IMPORTANT]
-> **amd64 only.** This image is built for `linux/amd64` exclusively.
+> [!NOTE]
+> **Multi-arch.** Published for both `linux/amd64` and `linux/arm64`. Every other image in this repo builds `FROM` this base but is amd64-only itself.
 
 ## Usage in an iximiuz Playground
 
