@@ -54,7 +54,8 @@ ubuntu/
     ├── get-common-tools.sh
     ├── get-fzf.sh
     ├── get-websocat.sh
-    └── set-up-systemd-examiner-service.sh
+    ├── set-up-systemd-examiner-service.sh
+    └── healthcheck.sh                 # Build-time validation, runs last as $USER
 ```
 
 ## Build Arguments
@@ -106,6 +107,7 @@ The image is built and pushed to GHCR automatically via GitHub Actions on every 
 docker pull ghcr.io/ibtisam-iq/ubuntu-24-04-rootfs:latest
 ```
 
+> [!IMPORTANT]
 > **amd64 only.** This image is built for `linux/amd64` exclusively.
 
 ## Usage in an iximiuz Playground
@@ -132,3 +134,4 @@ labctl playground create --base flexbox ubuntu-base -f ./manifest.yml
 - Machine IDs (`/etc/machine-id`, `/var/lib/dbus/machine-id`) are emptied during build; each VM generates its own identity on boot.
 - `/.dockerenv` is removed during build so systemd does not treat the VM as a container.
 - The `welcome` file (`$HOME/.welcome`) is displayed on first interactive login and then permanently deleted by `~/.bashrc` logic.
+- `healthcheck.sh` runs last, as `$USER`, and asserts every fact above by symlink or file content rather than by starting anything: systemd is present, `ssh.service` is enabled and `ssh.socket` is not, both machine-id files are unset, no host keys were baked in, `$USER` exists, and the `examiner.service` unit is declared and enabled. A nonzero exit fails the build, so a broken base never reaches GHCR.

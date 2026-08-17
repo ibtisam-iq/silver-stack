@@ -148,3 +148,8 @@ RUN --mount=type=bind,source=scripts,target=/tmp/scripts /tmp/scripts/get-fzf.sh
 RUN --mount=type=bind,source=scripts,target=/tmp/scripts /tmp/scripts/customize-bashrc.sh
 RUN --mount=type=bind,source=scripts,target=/tmp/scripts USER=$USER /tmp/scripts/customize-git.sh
 RUN --mount=type=bind,source=scripts,target=/tmp/scripts /tmp/scripts/customize-vimrc.sh
+
+# Build-time health check. Runs last, as $USER, so it verifies the finished
+# image including the interactive user. Bind-mounted, so nothing is shipped.
+RUN --mount=type=bind,source=scripts,target=/tmp/scripts \
+    /tmp/scripts/healthcheck.sh ${USER}
