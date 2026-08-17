@@ -148,6 +148,7 @@ The image is built and pushed to GHCR automatically via GitHub Actions on every 
 docker pull ghcr.io/ibtisam-iq/dev-machine-rootfs:latest
 ```
 
+> [!IMPORTANT]
 > **amd64 only.** This image is built for `linux/amd64` exclusively.
 
 ## Usage in an iximiuz Playground
